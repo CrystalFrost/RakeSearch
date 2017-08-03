@@ -1,31 +1,31 @@
-// Диагональный латинский квадрат
+// Р”РёР°РіРѕРЅР°Р»СЊРЅС‹Р№ Р»Р°С‚РёРЅСЃРєРёР№ РєРІР°РґСЂР°С‚
 
 # include "Square.h"
 
 using namespace std;
 
-// Конструктор по умолчанию. "Зануление" всех значений
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ. "Р—Р°РЅСѓР»РµРЅРёРµ" РІСЃРµС… Р·РЅР°С‡РµРЅРёР№
 Square::Square()
 {
 	Reset();
 }
 
 
-// Создание квадрата по заданной матрице
+// РЎРѕР·РґР°РЅРёРµ РєРІР°РґСЂР°С‚Р° РїРѕ Р·Р°РґР°РЅРЅРѕР№ РјР°С‚СЂРёС†Рµ
 Square::Square(int source[Rank][Rank])
 {
 	Initialize(source);
 }
 
 
-// Конструктор копирования
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ
 Square::Square(Square& source)
 {
 	Initialize(source.Matrix);
 }
 
 
-// Инициализация внутренних структур
+// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РІРЅСѓС‚СЂРµРЅРЅРёС… СЃС‚СЂСѓРєС‚СѓСЂ
 void Square::Initialize(int source[Rank][Rank])
 {
 	for (int rowId = 0; rowId < Rank; rowId++)
@@ -38,7 +38,7 @@ void Square::Initialize(int source[Rank][Rank])
 }
 
 
-// Сброс значений внутренних переменных
+// РЎР±СЂРѕСЃ Р·РЅР°С‡РµРЅРёР№ РІРЅСѓС‚СЂРµРЅРЅРёС… РїРµСЂРµРјРµРЅРЅС‹С…
 void Square::Reset()
 {
 	for (int rowId = 0; rowId < Rank; rowId++)
@@ -51,7 +51,7 @@ void Square::Reset()
 }
 
 
-// Оператор сравнения
+// РћРїРµСЂР°С‚РѕСЂ СЃСЂР°РІРЅРµРЅРёСЏ
 int Square::operator == (Square& value)
 {
 	int isEqual = 1;
@@ -71,7 +71,7 @@ return isEqual;
 }
 
 
-// Оператор присвоения
+// РћРїРµСЂР°С‚РѕСЂ РїСЂРёСЃРІРѕРµРЅРёСЏ
 Square& Square::operator = (Square& value)
 {
 	Initialize(value.Matrix);
@@ -80,7 +80,7 @@ return *this;
 }
 
 
-// Оператор вывода данных квадрата
+// РћРїРµСЂР°С‚РѕСЂ РІС‹РІРѕРґР° РґР°РЅРЅС‹С… РєРІР°РґСЂР°С‚Р°
 std::ostream& operator << (std::ostream& os, Square& value)
 {
 	value.Write(os);
@@ -89,7 +89,7 @@ return os;
 }
 
 
-// Оператор считывания данных квадрата
+// РћРїРµСЂР°С‚РѕСЂ СЃС‡РёС‚С‹РІР°РЅРёСЏ РґР°РЅРЅС‹С… РєРІР°РґСЂР°С‚Р°
 std::istream& operator >> (std::istream& is, Square& value)
 {
 	value.Read(is);
@@ -98,7 +98,7 @@ return is;
 }
 
 
-// Чтение квадрата из потока
+// Р§С‚РµРЅРёРµ РєРІР°РґСЂР°С‚Р° РёР· РїРѕС‚РѕРєР°
 void Square::Read(std::istream& is)
 {
 	for (int rowId = 0; rowId < Rank; rowId++)
@@ -111,7 +111,7 @@ void Square::Read(std::istream& is)
 }
 
 
-// Запись квадрата в поток
+// Р—Р°РїРёСЃСЊ РєРІР°РґСЂР°С‚Р° РІ РїРѕС‚РѕРє
 void Square::Write(std::ostream& os)
 {
 	for (int rowId = 0; rowId < Rank; rowId++)
@@ -126,15 +126,15 @@ void Square::Write(std::ostream& os)
 	os << endl;
 }
 
-// Проверка квадрата на то, что он является диагональным латинским квадратом
+// РџСЂРѕРІРµСЂРєР° РєРІР°РґСЂР°С‚Р° РЅР° С‚Рѕ, С‡С‚Рѕ РѕРЅ СЏРІР»СЏРµС‚СЃСЏ РґРёР°РіРѕРЅР°Р»СЊРЅС‹Рј Р»Р°С‚РёРЅСЃРєРёРј РєРІР°РґСЂР°С‚РѕРј
 int Square::IsDiagonal()
 {
 	int isDiagonal = 1;
 
-	// Проверка первой диагонали - диагонали [0;0] - [rank;rank]
+	// РџСЂРѕРІРµСЂРєР° РїРµСЂРІРѕР№ РґРёР°РіРѕРЅР°Р»Рё - РґРёР°РіРѕРЅР°Р»Рё [0;0] - [rank;rank]
 	for (int itemId = 0; itemId < Rank && isDiagonal; itemId++)
 	{
-		// Проверка на совпадение элемента [itemId; itemId] со всеми остальными элементами диагонали
+		// РџСЂРѕРІРµСЂРєР° РЅР° СЃРѕРІРїР°РґРµРЅРёРµ СЌР»РµРјРµРЅС‚Р° [itemId; itemId] СЃРѕ РІСЃРµРјРё РѕСЃС‚Р°Р»СЊРЅС‹РјРё СЌР»РµРјРµРЅС‚Р°РјРё РґРёР°РіРѕРЅР°Р»Рё
 		for (int comparedId = itemId + 1; comparedId < Rank && isDiagonal; comparedId++)
 		{
 			if (Matrix[itemId][itemId] == Matrix[comparedId][comparedId])
@@ -144,10 +144,10 @@ int Square::IsDiagonal()
 		}
 	}
 
-	// Проверка второй диагонали - диагонали [rank - itemId - 1; itemId]
+	// РџСЂРѕРІРµСЂРєР° РІС‚РѕСЂРѕР№ РґРёР°РіРѕРЅР°Р»Рё - РґРёР°РіРѕРЅР°Р»Рё [rank - itemId - 1; itemId]
 	for (int itemId = 0; itemId < Rank && isDiagonal; itemId ++)
 	{
-		// Проверка на совпадение элемента [rank - itemId - 1; itemId] со всеми остальными элементами диагонали
+		// РџСЂРѕРІРµСЂРєР° РЅР° СЃРѕРІРїР°РґРµРЅРёРµ СЌР»РµРјРµРЅС‚Р° [rank - itemId - 1; itemId] СЃРѕ РІСЃРµРјРё РѕСЃС‚Р°Р»СЊРЅС‹РјРё СЌР»РµРјРµРЅС‚Р°РјРё РґРёР°РіРѕРЅР°Р»Рё
 		for (int comparedId = itemId + 1; comparedId < Rank && isDiagonal; comparedId++)
 		{
 			if (Matrix[(Rank - itemId - 1)][itemId] == Matrix[(Rank - comparedId - 1)][comparedId])
@@ -161,18 +161,18 @@ int Square::IsDiagonal()
 }
 
 
-// Проверка квадрата на то, что он является латинским квадратом
+// РџСЂРѕРІРµСЂРєР° РєРІР°РґСЂР°С‚Р° РЅР° С‚Рѕ, С‡С‚Рѕ РѕРЅ СЏРІР»СЏРµС‚СЃСЏ Р»Р°С‚РёРЅСЃРєРёРј РєРІР°РґСЂР°С‚РѕРј
 int Square::IsLatin()
 {
 	int isLatin = 1;
 
-	// Проверка столбцов квадрата
+	// РџСЂРѕРІРµСЂРєР° СЃС‚РѕР»Р±С†РѕРІ РєРІР°РґСЂР°С‚Р°
 	for (int columnId = 0; columnId < Rank && isLatin; columnId++)
 	{
-		// Проверка корректности столбца columnId
+		// РџСЂРѕРІРµСЂРєР° РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚Рё СЃС‚РѕР»Р±С†Р° columnId
 		for (int rowId = 0; rowId < Rank && isLatin; rowId++)
 		{
-			// Проверка на совпадение элемента [rowId; columnId] со всеми остальными элементами столбца columndId
+			// РџСЂРѕРІРµСЂРєР° РЅР° СЃРѕРІРїР°РґРµРЅРёРµ СЌР»РµРјРµРЅС‚Р° [rowId; columnId] СЃРѕ РІСЃРµРјРё РѕСЃС‚Р°Р»СЊРЅС‹РјРё СЌР»РµРјРµРЅС‚Р°РјРё СЃС‚РѕР»Р±С†Р° columndId
 			for (int comparedRowId = rowId + 1; comparedRowId < Rank && isLatin; comparedRowId++)
 			{
 				if (Matrix[comparedRowId][columnId] == Matrix[rowId][columnId])
@@ -183,13 +183,13 @@ int Square::IsLatin()
 		}
 	}
 
-	// Проверка строк квадрата
+	// РџСЂРѕРІРµСЂРєР° СЃС‚СЂРѕРє РєРІР°РґСЂР°С‚Р°
 	for (int rowId = 0; rowId < Rank && isLatin; rowId++)
 	{
-		// Проверка корректности строки rowId
+		// РџСЂРѕРІРµСЂРєР° РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚Рё СЃС‚СЂРѕРєРё rowId
 		for (int columnId = 0; columnId < Rank && isLatin; columnId++)
 		{
-			// Проверка на совпадение элемента [rowId; columnId] со всеми остальными элементами строки rowId
+			// РџСЂРѕРІРµСЂРєР° РЅР° СЃРѕРІРїР°РґРµРЅРёРµ СЌР»РµРјРµРЅС‚Р° [rowId; columnId] СЃРѕ РІСЃРµРјРё РѕСЃС‚Р°Р»СЊРЅС‹РјРё СЌР»РµРјРµРЅС‚Р°РјРё СЃС‚СЂРѕРєРё rowId
 			for (int comparedColumnId = columnId + 1; comparedColumnId < Rank && isLatin; comparedColumnId++)
 			{
 				if (Matrix[rowId][columnId] == Matrix[rowId][comparedColumnId])
@@ -204,13 +204,13 @@ int Square::IsLatin()
 }
 
 
-// Проверка ортогональности квадратов a и b
+// РџСЂРѕРІРµСЂРєР° РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅРѕСЃС‚Рё РєРІР°РґСЂР°С‚РѕРІ a Рё b
 int Square::OrthoDegree(Square a, Square b)
 {
-	int degree = 0;				// Степерь ортогональности
-	int freePair[Rank][Rank];	// Массив использования пар значений в получающемся греко-латинском квадрате
+	int degree = 0;				// РЎС‚РµРїРµСЂСЊ РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅРѕСЃС‚Рё
+	int freePair[Rank][Rank];	// РњР°СЃСЃРёРІ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РїР°СЂ Р·РЅР°С‡РµРЅРёР№ РІ РїРѕР»СѓС‡Р°СЋС‰РµРјСЃСЏ РіСЂРµРєРѕ-Р»Р°С‚РёРЅСЃРєРѕРј РєРІР°РґСЂР°С‚Рµ
 
-	// Инциализируем все пары как свободные
+	// РРЅС†РёР°Р»РёР·РёСЂСѓРµРј РІСЃРµ РїР°СЂС‹ РєР°Рє СЃРІРѕР±РѕРґРЅС‹Рµ
 	for (int i = 0; i < Rank; i++)
 	{
 		for (int j = 0; j < Rank; j++)
@@ -219,7 +219,7 @@ int Square::OrthoDegree(Square a, Square b)
 		}
 	}
 
-	// Отмечаем пары, использованные в греко-латинском квадрате
+	// РћС‚РјРµС‡Р°РµРј РїР°СЂС‹, РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅС‹Рµ РІ РіСЂРµРєРѕ-Р»Р°С‚РёРЅСЃРєРѕРј РєРІР°РґСЂР°С‚Рµ
 	for (int rowId = 0; rowId < Rank; rowId++)
 	{
 		for (int columnId = 0; columnId < Rank; columnId++)

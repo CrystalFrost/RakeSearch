@@ -9,23 +9,23 @@ using namespace std;
 
 int main()
 {
-	string directory = "D:\\WorkFiles\\RakeResults\\";		// Пусть к каталогу с файлами
-	string mask = "rs*.txt";								// Маска поиска файлов
-	string maskWithPath = directory + mask;					// Маска поиска файлов по заданному пути
-	string fileName;										// Имя найденного файла
-	string fullFileName;									// Имя файла с путём
-	WIN32_FIND_DATA findData;								// Данные поиска
-	HANDLE findHandle;										// Заголовок структур поиска
+	string directory = "D:\\WorkFiles\\RakeResults\\";		// РџСѓСЃС‚СЊ Рє РєР°С‚Р°Р»РѕРіСѓ СЃ С„Р°Р№Р»Р°РјРё
+	string mask = "rs*.txt";								// РњР°СЃРєР° РїРѕРёСЃРєР° С„Р°Р№Р»РѕРІ
+	string maskWithPath = directory + mask;					// РњР°СЃРєР° РїРѕРёСЃРєР° С„Р°Р№Р»РѕРІ РїРѕ Р·Р°РґР°РЅРЅРѕРјСѓ РїСѓС‚Рё
+	string fileName;										// РРјСЏ РЅР°Р№РґРµРЅРЅРѕРіРѕ С„Р°Р№Р»Р°
+	string fullFileName;									// РРјСЏ С„Р°Р№Р»Р° СЃ РїСѓС‚С‘Рј
+	WIN32_FIND_DATA findData;								// Р”Р°РЅРЅС‹Рµ РїРѕРёСЃРєР°
+	HANDLE findHandle;										// Р—Р°РіРѕР»РѕРІРѕРє СЃС‚СЂСѓРєС‚СѓСЂ РїРѕРёСЃРєР°
 
 	fstream resultFile;
 	Result taskResult;
 	long long int totalSquares = 0;
 
-	// Обработка файлов 
-		// Инициализация поиска
+	// РћР±СЂР°Р±РѕС‚РєР° С„Р°Р№Р»РѕРІ 
+		// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїРѕРёСЃРєР°
 		findHandle = FindFirstFile(maskWithPath.c_str(), &findData);
 	
-		// Перебор файлов
+		// РџРµСЂРµР±РѕСЂ С„Р°Р№Р»РѕРІ
 		if (findHandle != INVALID_HANDLE_VALUE)
 		{
 			do
@@ -46,10 +46,10 @@ int main()
 			while (FindNextFile(findHandle, &findData));
 		}
 
-		// Закрытие структур поиска
+		// Р—Р°РєСЂС‹С‚РёРµ СЃС‚СЂСѓРєС‚СѓСЂ РїРѕРёСЃРєР°
 		FindClose(findHandle);
 
-	// Вывод результата
+	// Р’С‹РІРѕРґ СЂРµР·СѓР»СЊС‚Р°С‚Р°
 	cout << endl;
 	cout << "Squares in results: " << totalSquares << endl;
 	cout << endl << "Press any key to continue ..." << endl;

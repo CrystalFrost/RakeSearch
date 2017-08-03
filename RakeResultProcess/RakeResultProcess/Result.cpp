@@ -5,7 +5,7 @@
 
 using namespace std;
 
-// Конструктор по умолчанию
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 Result::Result()
 {
 	TotalPairs = 0;
@@ -14,42 +14,42 @@ Result::Result()
 }
 
 
-// Чтение данных результата из файла
+// Р§С‚РµРЅРёРµ РґР°РЅРЅС‹С… СЂРµР·СѓР»СЊС‚Р°С‚Р° РёР· С„Р°Р№Р»Р°
 void Result::Read(istream& is)
 {
-	string markerTotalPairs = "# Total pairs found: ";						// Подстрока - маркер числа найденных пар
-	string markerTotalSquaresWithPairs = "# Total squares with pairs: ";	// Подстрока - маркер числа квадратов в парах
-	string markerSquaresProcessed_A = "# Processes ";						// Подстрока - начало строки с числом обработанных квадратов
-	string markerSquaresProcessed_B = " milliards ";						// Подстрока - вставка с числом миллиардов
-	string markerSquaresProcessed_C = " squares";							// Подстрока - отрезаемое окончание после числа квадратов
+	string markerTotalPairs = "# Total pairs found: ";						// РџРѕРґСЃС‚СЂРѕРєР° - РјР°СЂРєРµСЂ С‡РёСЃР»Р° РЅР°Р№РґРµРЅРЅС‹С… РїР°СЂ
+	string markerTotalSquaresWithPairs = "# Total squares with pairs: ";	// РџРѕРґСЃС‚СЂРѕРєР° - РјР°СЂРєРµСЂ С‡РёСЃР»Р° РєРІР°РґСЂР°С‚РѕРІ РІ РїР°СЂР°С…
+	string markerSquaresProcessed_A = "# Processes ";						// РџРѕРґСЃС‚СЂРѕРєР° - РЅР°С‡Р°Р»Рѕ СЃС‚СЂРѕРєРё СЃ С‡РёСЃР»РѕРј РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹С… РєРІР°РґСЂР°С‚РѕРІ
+	string markerSquaresProcessed_B = " milliards ";						// РџРѕРґСЃС‚СЂРѕРєР° - РІСЃС‚Р°РІРєР° СЃ С‡РёСЃР»РѕРј РјРёР»Р»РёР°СЂРґРѕРІ
+	string markerSquaresProcessed_C = " squares";							// РџРѕРґСЃС‚СЂРѕРєР° - РѕС‚СЂРµР·Р°РµРјРѕРµ РѕРєРѕРЅС‡Р°РЅРёРµ РїРѕСЃР»Рµ С‡РёСЃР»Р° РєРІР°РґСЂР°С‚РѕРІ
 
-	string line;									// Читаемая строка
-	string lineTotalPairs;							// Строка с числом найденных пар
-	string lineTotalSquaresWithPairs;				// Строка с числом квадратов, входящих в пары
-	string lineSquaresProcessed;					// Строка с числом обработанных квадратов
+	string line;									// Р§РёС‚Р°РµРјР°СЏ СЃС‚СЂРѕРєР°
+	string lineTotalPairs;							// РЎС‚СЂРѕРєР° СЃ С‡РёСЃР»РѕРј РЅР°Р№РґРµРЅРЅС‹С… РїР°СЂ
+	string lineTotalSquaresWithPairs;				// РЎС‚СЂРѕРєР° СЃ С‡РёСЃР»РѕРј РєРІР°РґСЂР°С‚РѕРІ, РІС…РѕРґСЏС‰РёС… РІ РїР°СЂС‹
+	string lineSquaresProcessed;					// РЎС‚СЂРѕРєР° СЃ С‡РёСЃР»РѕРј РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹С… РєРІР°РґСЂР°С‚РѕРІ
 
 	int markerTotalPairsLength = markerTotalPairs.length();
 
-	int milliards;			// Число миллиардов квадратов
-	int squares;			// Число квадратов в рамках миллиарда
+	int milliards;			// Р§РёСЃР»Рѕ РјРёР»Р»РёР°СЂРґРѕРІ РєРІР°РґСЂР°С‚РѕРІ
+	int squares;			// Р§РёСЃР»Рѕ РєРІР°РґСЂР°С‚РѕРІ РІ СЂР°РјРєР°С… РјРёР»Р»РёР°СЂРґР°
 	size_t milliardsStart;
 	size_t milliardsEnds;
 	size_t squaresStart;
 	size_t squaresEnds;
 
-	// Поиск маркера итогов
+	// РџРѕРёСЃРє РјР°СЂРєРµСЂР° РёС‚РѕРіРѕРІ
 	do
 	{
 		std::getline(is, line);
 	}
 	while (line.substr(0, markerTotalPairsLength) != markerTotalPairs);
 
-	// Чтение итогов
+	// Р§С‚РµРЅРёРµ РёС‚РѕРіРѕРІ
 	lineTotalPairs = line;
 	std::getline(is, lineTotalSquaresWithPairs);
 	std::getline(is, lineSquaresProcessed);
 
-	// Извлечение итогов из строк
+	// РР·РІР»РµС‡РµРЅРёРµ РёС‚РѕРіРѕРІ РёР· СЃС‚СЂРѕРє
 	TotalPairs = std::stoi(lineTotalPairs.substr(markerTotalPairs.length()));
 	TotalSquaresWithPairs = std::stoi(lineTotalSquaresWithPairs.substr(markerTotalSquaresWithPairs.length()));
 

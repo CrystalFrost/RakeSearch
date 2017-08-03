@@ -11,13 +11,13 @@
 using namespace std;
 
 
-// Получение первого файла по заданной маске
+// РџРѕР»СѓС‡РµРЅРёРµ РїРµСЂРІРѕРіРѕ С„Р°Р№Р»Р° РїРѕ Р·Р°РґР°РЅРЅРѕР№ РјР°СЃРєРµ
 string GetFirstFile(string mask)
 {
 	string result;
 
-	WIN32_FIND_DATA findData;	// Данные, связанные с поиском (можно использовать в FindNextFile)
-	HANDLE findHandle;			// Заголовок поиска
+	WIN32_FIND_DATA findData;	// Р”Р°РЅРЅС‹Рµ, СЃРІСЏР·Р°РЅРЅС‹Рµ СЃ РїРѕРёСЃРєРѕРј (РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РІ FindNextFile)
+	HANDLE findHandle;			// Р—Р°РіРѕР»РѕРІРѕРє РїРѕРёСЃРєР°
 
 	findHandle = FindFirstFile(mask.c_str(), &findData);
 	
@@ -34,7 +34,7 @@ return result;
 }
 
 
-// Проверка доступности storage
+// РџСЂРѕРІРµСЂРєР° РґРѕСЃС‚СѓРїРЅРѕСЃС‚Рё storage
 int PingStorage(string path)
 {
 	int result = 0;
@@ -51,7 +51,7 @@ return result;
 }
 
 
-// Выполнение вычислений
+// Р’С‹РїРѕР»РЅРµРЅРёРµ РІС‹С‡РёСЃР»РµРЅРёР№
 void Compute(string storage, string local)
 {
 	string workunitsDirectory = storage + "workunit\\";
@@ -94,7 +94,7 @@ void Compute(string storage, string local)
 
 	for ( ; ; )
 	{
-		// Проверка наличия файла задания, контрольной точки, результата
+		// РџСЂРѕРІРµСЂРєР° РЅР°Р»РёС‡РёСЏ С„Р°Р№Р»Р° Р·Р°РґР°РЅРёСЏ, РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРё, СЂРµР·СѓР»СЊС‚Р°С‚Р°
 		localWorkunit = GetFirstFile(localWorkunitsMask);
 		localResult = GetFirstFile(localResultsMask);
 		localCheckpoint = GetFirstFile(localCheckpointMask);
@@ -104,32 +104,32 @@ void Compute(string storage, string local)
 		pathLocalCheckpoint = local + localCheckpoint;
 		pathStorageResult = resultsDirectory + localResult;
 
-		// Отправка результатов
+		// РћС‚РїСЂР°РІРєР° СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ
 		if (!localResult.empty())
 		{
-			// Отправка результата и удаление файла с заданием и контрольной точкой
-				// Удаление файла с заданием
+			// РћС‚РїСЂР°РІРєР° СЂРµР·СѓР»СЊС‚Р°С‚Р° Рё СѓРґР°Р»РµРЅРёРµ С„Р°Р№Р»Р° СЃ Р·Р°РґР°РЅРёРµРј Рё РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРѕР№
+				// РЈРґР°Р»РµРЅРёРµ С„Р°Р№Р»Р° СЃ Р·Р°РґР°РЅРёРµРј
 				std::cout << "Remove a workunit file: " << localWorkunit << endl;
 				remove(pathLocalWorkunit.c_str());
 
-				// Удаление файла с контрольной точкой
+				// РЈРґР°Р»РµРЅРёРµ С„Р°Р№Р»Р° СЃ РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРѕР№
 				std::cout << "Remove a checkpoint file: " << localCheckpoint << endl;
 				remove(pathLocalCheckpoint.c_str());
 
-				// Отправка результата
-					// Сброс флагов
+				// РћС‚РїСЂР°РІРєР° СЂРµР·СѓР»СЊС‚Р°С‚Р°
+					// РЎР±СЂРѕСЃ С„Р»Р°РіРѕРІ
 					isResultSent = 0;
 					isStorageResolved = 0;
-					// Отправление результата
+					// РћС‚РїСЂР°РІР»РµРЅРёРµ СЂРµР·СѓР»СЊС‚Р°С‚Р°
 					do
 					{
-						// Предпринимаем попытку отправки
-							//  Проверяем доступность хранилища
+						// РџСЂРµРґРїСЂРёРЅРёРјР°РµРј РїРѕРїС‹С‚РєСѓ РѕС‚РїСЂР°РІРєРё
+							//  РџСЂРѕРІРµСЂСЏРµРј РґРѕСЃС‚СѓРїРЅРѕСЃС‚СЊ С…СЂР°РЅРёР»РёС‰Р°
 							isStorageResolved = PingStorage(pingPath);
-							// Отправлям файл
+							// РћС‚РїСЂР°РІР»СЏРј С„Р°Р№Р»
 							if (isStorageResolved)
 							{
-								// Переносим файл в доступный сетевой каталог
+								// РџРµСЂРµРЅРѕСЃРёРј С„Р°Р№Р» РІ РґРѕСЃС‚СѓРїРЅС‹Р№ СЃРµС‚РµРІРѕР№ РєР°С‚Р°Р»РѕРі
 								std::cout << "Move result " << localResult << " to storage on " << resultsDirectory << endl;
 								rename(pathLocalResult.c_str(), pathStorageResult.c_str());
 								isResultSent = 1;
@@ -143,13 +143,13 @@ void Compute(string storage, string local)
 					while (!isResultSent);
 		}
 
-		// Запуск вычислений с контрольной точки
+		// Р—Р°РїСѓСЃРє РІС‹С‡РёСЃР»РµРЅРёР№ СЃ РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРё
 		if (!localCheckpoint.empty() && localResult.empty())
 		{
-			// Проверка наличия файла с заданием
+			// РџСЂРѕРІРµСЂРєР° РЅР°Р»РёС‡РёСЏ С„Р°Р№Р»Р° СЃ Р·Р°РґР°РЅРёРµРј
 			if (!localWorkunit.empty())
 			{
-				// Запускаем расчёт
+				// Р—Р°РїСѓСЃРєР°РµРј СЂР°СЃС‡С‘С‚
 				initStartFileName = local + localWorkunit;
 				initResultFileName = local + "rs" + localWorkunit.substr(2, localWorkunit.length() - 2);
 				
@@ -164,10 +164,10 @@ void Compute(string storage, string local)
 			}
 		}
 
-		// Запуск вычислений с файла задания
+		// Р—Р°РїСѓСЃРє РІС‹С‡РёСЃР»РµРЅРёР№ СЃ С„Р°Р№Р»Р° Р·Р°РґР°РЅРёСЏ
 		if (localCheckpoint.empty() && localResult.empty() && !localWorkunit.empty())
 		{
-			// Запуск вычислений с файла задания, присутствующего без файлов контрольной точки и результата
+			// Р—Р°РїСѓСЃРє РІС‹С‡РёСЃР»РµРЅРёР№ СЃ С„Р°Р№Р»Р° Р·Р°РґР°РЅРёСЏ, РїСЂРёСЃСѓС‚СЃС‚РІСѓСЋС‰РµРіРѕ Р±РµР· С„Р°Р№Р»РѕРІ РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРё Рё СЂРµР·СѓР»СЊС‚Р°С‚Р°
 			initStartFileName = local + localWorkunit;
 			initResultFileName = local + "rs" + localWorkunit.substr(2, localWorkunit.length() - 2);
 			
@@ -177,18 +177,18 @@ void Compute(string storage, string local)
 			search.StartMoveSearch();
 		}
 
-		// Запрос нового задания
+		// Р—Р°РїСЂРѕСЃ РЅРѕРІРѕРіРѕ Р·Р°РґР°РЅРёСЏ
 		if (localCheckpoint.empty() && localResult.empty() && localWorkunit.empty())
 		{
-			// Получение нового задания
-				//  Проверяем доступность хранилища
+			// РџРѕР»СѓС‡РµРЅРёРµ РЅРѕРІРѕРіРѕ Р·Р°РґР°РЅРёСЏ
+				//  РџСЂРѕРІРµСЂСЏРµРј РґРѕСЃС‚СѓРїРЅРѕСЃС‚СЊ С…СЂР°РЅРёР»РёС‰Р°
 				while(!PingStorage(pingPath))
 				{
 					cout << "Storage inaccessble, new workunits cannot be received. Waiting 5 minutes..." << endl;
 					std::this_thread::sleep_for(std::chrono::minutes(5));
 				}
 
-				// Захват семафора
+				// Р—Р°С…РІР°С‚ СЃРµРјР°С„РѕСЂР°
 				semaphoreFile.open(semaphorePath, std::ios_base::app, _SH_DENYRW);
 				while (!semaphoreFile.is_open())
 				{
@@ -196,7 +196,7 @@ void Compute(string storage, string local)
 					semaphoreFile.open(semaphorePath, std::ios_base::app, _SH_DENYRW);
 				}
 
-				// Поиск файла с заданием
+				// РџРѕРёСЃРє С„Р°Р№Р»Р° СЃ Р·Р°РґР°РЅРёРµРј
 				fileListHandle = FindFirstFile(storageWorkunitsPath.c_str(), &fileListData);
 				if (fileListHandle != INVALID_HANDLE_VALUE)
 				{

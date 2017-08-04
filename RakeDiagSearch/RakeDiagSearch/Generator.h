@@ -14,7 +14,7 @@ using namespace std;
 class Generator
 {
 public:
-	__event void SquareGenerated(Square generatedSquare);	// Событие генерирования нового диагонального квадрата
+	/*~ __event*/ //~void SquareGenerated(Square generatedSquare);	// Событие генерирования нового диагонального квадрата
 
 	Generator();							// Конструктор по умолчанию
 	Generator(Generator& source);			// Конструктор копировния

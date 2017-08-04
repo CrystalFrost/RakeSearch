@@ -233,7 +233,7 @@ void PairSearch::OnSquareGenerated(Square newSquare)
 void PairSearch::StartPairSearch()
 {
 	// Подписываемся на событие генерации нового ДЛК
-	__hook(&Generator::SquareGenerated, &squareAGenerator, &PairSearch::OnSquareGenerated);
+	//~__hook(&Generator::SquareGenerated, &squareAGenerator, &PairSearch::OnSquareGenerated);
 
 	// Заканчиваем обработку текущего квадрата
 	if (isStartFromCheckpoint == Yes)
@@ -245,7 +245,7 @@ void PairSearch::StartPairSearch()
 	squareAGenerator.Start();
 
 	// Отписываемся от события генерации нового ДЛК
-	__unhook(&Generator::SquareGenerated, &squareAGenerator, &PairSearch::OnSquareGenerated);
+	//~__unhook(&Generator::SquareGenerated, &squareAGenerator, &PairSearch::OnSquareGenerated);
 
 	// Вывод итогов поиска пар
 	PrintSearchTotals();

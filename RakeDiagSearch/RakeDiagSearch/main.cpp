@@ -1,111 +1,49 @@
 # include <iostream>
 # include <fstream>
 # include <string>
-# include <chrono>
-# include <thread>
-# include <Windows.h>
+#include <sys/stat.h>
 
 # include "MovePairSearch.h"
 # include "PairSearch.h"
 
 using namespace std;
 
-
-// Получение первого файла по заданной маске
-string GetFirstFile(string mask)
-{
-  string result;
-
-  WIN32_FIND_DATA findData;  // Данные, связанные с поиском (можно использовать в FindNextFile)
-  HANDLE findHandle;      // Заголовок поиска
-
-  findHandle = FindFirstFile(mask.c_str(), &findData);
-  
-  if (findHandle != INVALID_HANDLE_VALUE)
-  {
-    result = findData.cFileName;
-  }
-  else
-  {
-    result.clear();
-  }
-
-return result;
+// Проверка существования файла
+// https://stackoverflow.com/questions/12774207/fastest-way-to-check-if-a-file-exist-using-standard-c-c11-c
+inline bool file_exists (const std::string& name) {
+  struct stat buffer;   
+  return (stat (name.c_str(), &buffer) == 0); 
 }
-
-
-// Проверка доступности storage
-int PingStorage(string path)
-{
-  int result = 0;
-  fstream pingFile;
-
-  pingFile.open(path, std::ios_base::in, _SH_DENYNO);
-  
-  if (pingFile.is_open())
-  {
-    result = 1;
-  }
-
-return result;
-}
-
 
 // Выполнение вычислений
-void Compute(string storage, string local)
+int Compute(string wu_filename, string result_filename)
 {
-  string workunitsDirectory = storage + "workunit\\";
-  string resultsDirectory = storage + "result\\";
-  
-  string workunitsMask = "wu*.txt";
-  string resultsMask = "rs*.txt";
-
-  string pingPath = storage + "ping\\ping.txt";
-  string semaphorePath = storage + "semaphore\\semaphore.txt";
-  string storageWorkunitsPath = workunitsDirectory + workunitsMask;
-
-  string localWorkunitsMask = local + workunitsMask;
-  string localResultsMask = local + resultsMask;
-  string localCheckpointMask = local + "checkpoint.txt";
-
   string localWorkunit;
   string localResult;
   string localCheckpoint;
   string pathLocalWorkunit;
   string pathLocalResult;
   string pathLocalCheckpoint;
-  string pathStorageResult;
-  string pathStorageWorkunit;
-  string storageWorkunit;
 
   string initStartFileName;
   string initResultFileName;
-  string initCheckpointFileName = local + "checkpoint.txt";
-  string initTempCheckpointFileName = local + "checkpoint_new.txt";
-
-  int isStorageResolved;
-  int isResultSent;
-
-  fstream semaphoreFile;
-  WIN32_FIND_DATA fileListData;
-  HANDLE fileListHandle;
+  string initCheckpointFileName = "checkpoint.txt";
+  string initTempCheckpointFileName = "checkpoint_new.txt";
 
   MovePairSearch search;
 
-  for ( ; ; )
   {
     // Проверка наличия файла задания, контрольной точки, результата
-    localWorkunit = GetFirstFile(localWorkunitsMask);
-    localResult = GetFirstFile(localResultsMask);
-    localCheckpoint = GetFirstFile(localCheckpointMask);
+    localWorkunit = wu_filename;   //~GetFirstFile(localWorkunitsMask);
+    localResult = result_filename; 
+    localCheckpoint = "checkpoint_test.txt";
 
-    pathLocalWorkunit = local + localWorkunit;
-    pathLocalResult = local + localResult;
-    pathLocalCheckpoint = local + localCheckpoint;
-    pathStorageResult = resultsDirectory + localResult;
+    pathLocalWorkunit = localWorkunit;
+    pathLocalResult = localResult;
+    pathLocalCheckpoint = localCheckpoint;
 
-    // Отправка результатов
-    if (!localResult.empty())
+    // Результат существует, удалить результат и контрольные точки
+    if (file_exists(localResult)) //~(!localResult.empty())
     {
       // Отправка результата и удаление файла с заданием и контрольной точкой
         // Удаление файла с заданием
@@ -116,42 +54,19 @@ void Compute(string storage, string local)
         std::cout << "Remove a checkpoint file: " << localCheckpoint << endl;
         remove(pathLocalCheckpoint.c_str());
 
-        // Отправка результата
-          // Сброс флагов
-          isResultSent = 0;
-          isStorageResolved = 0;
-          // Отправление результата
-          do
-          {
-            // Предпринимаем попытку отправки
-              //  Проверяем доступность хранилища
-              isStorageResolved = PingStorage(pingPath);
-              // Отправлям файл
-              if (isStorageResolved)
-              {
-                // Переносим файл в доступный сетевой каталог
-                std::cout << "Move result " << localResult << " to storage on " << resultsDirectory << endl;
-                rename(pathLocalResult.c_str(), pathStorageResult.c_str());
-                isResultSent = 1;
-              }
-              else
-              {
-                cout << "Storage inaccessble, result " << localResult << " cannot be sent. Waiting 5 minutes..." << endl;
-                std::this_thread::sleep_for(std::chrono::minutes(5));
-              }
-          }
-          while (!isResultSent);
+        std::cout << "Result removed" << endl;
+        return 0;
     }
 
     // Запуск вычислений с контрольной точки
-    if (!localCheckpoint.empty() && localResult.empty())
+    if (file_exists(localCheckpoint) && !file_exists(localResult))
     {
       // Проверка наличия файла с заданием
-      if (!localWorkunit.empty())
+      if (file_exists(localWorkunit))
       {
         // Запускаем расчёт
-        initStartFileName = local + localWorkunit;
-        initResultFileName = local + "rs" + localWorkunit.substr(2, localWorkunit.length() - 2);
+        initStartFileName  = localWorkunit;
+        initResultFileName = localResult;
         
         std::cout << "Start from checkpoint of workunit " << localWorkunit << endl;
 
@@ -161,79 +76,42 @@ void Compute(string storage, string local)
       else
       {
         std::cout << "Error: delected a checkpoint file " << localCheckpoint << " without workunit file!" << endl;
+        return -1;
       }
     }
 
     // Запуск вычислений с файла задания
-    if (localCheckpoint.empty() && localResult.empty() && !localWorkunit.empty())
+    if (!file_exists(localCheckpoint) && !file_exists(localResult) && file_exists(localWorkunit))
     {
       // Запуск вычислений с файла задания, присутствующего без файлов контрольной точки и результата
-      initStartFileName = local + localWorkunit;
-      initResultFileName = local + "rs" + localWorkunit.substr(2, localWorkunit.length() - 2);
+      initStartFileName  = localWorkunit;
+      initResultFileName = localResult;
       
       std::cout << "Start from workunit file " << localWorkunit << endl;
 
       search.InitializeMoveSearch(initStartFileName, initResultFileName, initCheckpointFileName, initTempCheckpointFileName);
       search.StartMoveSearch();
     }
-
-    // Запрос нового задания
-    if (localCheckpoint.empty() && localResult.empty() && localWorkunit.empty())
-    {
-      // Получение нового задания
-        //  Проверяем доступность хранилища
-        while(!PingStorage(pingPath))
-        {
-          cout << "Storage inaccessble, new workunits cannot be received. Waiting 5 minutes..." << endl;
-          std::this_thread::sleep_for(std::chrono::minutes(5));
-        }
-
-        // Захват семафора
-        semaphoreFile.open(semaphorePath, std::ios_base::app, _SH_DENYRW);
-        while (!semaphoreFile.is_open())
-        {
-          std::this_thread::sleep_for(std::chrono::seconds(2));
-          semaphoreFile.open(semaphorePath, std::ios_base::app, _SH_DENYRW);
-        }
-
-        // Поиск файла с заданием
-        fileListHandle = FindFirstFile(storageWorkunitsPath.c_str(), &fileListData);
-        if (fileListHandle != INVALID_HANDLE_VALUE)
-        {
-          storageWorkunit = fileListData.cFileName;
-          pathStorageWorkunit = workunitsDirectory + storageWorkunit;
-          pathLocalWorkunit = local + storageWorkunit;
-
-          cout << "Catch a WU: " << storageWorkunit << endl;
-          rename(pathStorageWorkunit.c_str(), pathLocalWorkunit.c_str());
-        }
-        else
-        {
-          cout << "Could not find workunits by '" << workunitsMask << "' mask" << endl;
-          break;
-        }
-
-        semaphoreFile.close();
-    }
   }
+
+  return 0;
 }
 
 
 int main(int argumentsCount, char* argumentsValues[])
 {
-  string storage;
-  string local;
+  string wu_filename;
+  string result_filename;
 
   if (argumentsCount == 3)
   {
-    storage = argumentsValues[1];
-    local = argumentsValues[2];
-
-    Compute(storage, local);
+    wu_filename = argumentsValues[1];
+    result_filename = argumentsValues[2];
+    Compute(wu_filename, result_filename);
   }
   else
   {
-    std::cout << "Please, specify: 1) storage path; 2) local path." << endl << endl;
+    std::cout << "Please, specify WU file." << endl << endl;
   }
 
   cout << "Press any key to exit ... " << endl;

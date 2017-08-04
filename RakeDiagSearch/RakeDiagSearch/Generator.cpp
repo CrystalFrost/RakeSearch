@@ -610,5 +610,5 @@ void Generator::ProcessSquare()
 	squaresCount++;
 
 	// Генерируем событие
-	__raise SquareGenerated(newSquare);
+	/*~ __raise*/ //~SquareGenerated(newSquare);
 }

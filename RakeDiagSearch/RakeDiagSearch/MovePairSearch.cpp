@@ -78,8 +78,8 @@ void MovePairSearch::InitializeMoveSearch(string start, string result, string ch
 
 	// Считываем состояние генератора и поиска из файла контрольной точки или начальных значений
 		// Открытие файлов со стартовыми параметрами и файла контрольной точки
-		startFile.open(startParametersFileName, std::ios_base::in);
-		checkpointFile.open(checkpointFileName, std::ios_base::in);
+		startFile.open(startParametersFileName.c_str(), std::ios_base::in);
+		checkpointFile.open(checkpointFileName.c_str(), std::ios_base::in);
 
 		// Считываение состояния
 		if (checkpointFile.is_open())
@@ -167,7 +167,7 @@ void MovePairSearch::CreateCheckpoint()
 {
 	fstream checkpointFile;
 
-	checkpointFile.open(tempCheckpointFileName, std::ios_base::out);
+	checkpointFile.open(tempCheckpointFileName.c_str(), std::ios_base::out);
 	if (checkpointFile.is_open())
 	{
 		Write(checkpointFile);
@@ -455,7 +455,7 @@ void MovePairSearch::ProcessOrthoSquare()
 				cout << "# ------------------------" << endl;
 
 				// Вывод информации в файл
-				resultFile.open(resultFileName, std::ios_base::app);
+				resultFile.open(resultFileName.c_str(), std::ios_base::app);
 				resultFile << "{" << endl;
 				resultFile << "# ------------------------" << endl;
 				resultFile << "# Detected pair for the square: " << endl;
@@ -470,7 +470,7 @@ void MovePairSearch::ProcessOrthoSquare()
 				cout << b << endl;
 
 				// Вывод информации в файл
-				resultFile.open(resultFileName, std::ios_base::app);
+				resultFile.open(resultFileName.c_str(), std::ios_base::app);
 				resultFile << b << endl;
 				resultFile.close();
 	}
@@ -495,7 +495,7 @@ void MovePairSearch::CheckMutualOrthogonality()
 	}
 
 	// Открываем файл с результатами
-	resultFile.open(resultFileName, std::ios_base::app);
+	resultFile.open(resultFileName.c_str(), std::ios_base::app);
 
 	// Проверка взаимной ортогональности набора квадратов
 	for (int i = 0; i <= maxSquareId; i++)
@@ -536,7 +536,7 @@ void MovePairSearch::ShowSearchTotals()
 	cout << "# ------------------------" << endl;
 
 	// Вывод итогов в файл
-	resultFile.open(resultFileName, std::ios_base::app);
+	resultFile.open(resultFileName.c_str(), std::ios_base::app);
 	resultFile << "# ------------------------" << endl;
 	resultFile << "# Total pairs found: " << totalPairsCount << endl;
 	resultFile << "# Total squares with pairs: " << totalSquaresWithPairs << endl;

@@ -103,8 +103,8 @@ void Generator::Initialize(string start, string result, string checkpoint, strin
 	tempCheckpointFileName = temp;
 
 	// Считываем настройки
-	startFile.open(startParametersFileName, std::ios_base::in);
-	checkpointFile.open(checkpointFileName, std::ios_base::in);
+	startFile.open(startParametersFileName.c_str(), std::ios_base::in);
+	checkpointFile.open(checkpointFileName.c_str(), std::ios_base::in);
 
 	if (checkpointFile.is_open())
 	{
@@ -418,7 +418,7 @@ void Generator::CreateCheckpoint()
 	fstream newCheckpointFile;
 
 	// Записываем настройки в новый файл контрольной точки
-	newCheckpointFile.open(tempCheckpointFileName, std::ios_base::out);
+	newCheckpointFile.open(tempCheckpointFileName.c_str(), std::ios_base::out);
 
 	if (newCheckpointFile.is_open())
 	{

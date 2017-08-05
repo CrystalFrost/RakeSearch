@@ -14,7 +14,7 @@ int main()
 	string checkpointFileName = "checkpoint.txt";
 	string tempCheckpointFileName = "checkpoint_new.txt";
 
-	Generator wuGenerator;
+ 	Generator wuGenerator;
 	wuGenerator.GenerateWorkunits(startFileName, resultFileName, checkpointFileName, tempCheckpointFileName, workunitsCount);
 
 	cout << "Press any key to exit ... " << endl;

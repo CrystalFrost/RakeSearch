@@ -183,12 +183,14 @@ void MovePairSearch::StartMoveSearch()
 {
   // Подписываемся на событие нахождения очередного ДЛК
   //~__hook(&Generator::SquareGenerated, &squareAGenerator, &MovePairSearch::OnSquareGenerated);
+  squareAGenerator.SquareGenerated.connect(&MovePairSearch::OnSquareGenerated);
 
   // Запускаем генерацию ДЛК
   squareAGenerator.Start();
 
   // Отписываемся от события нахождения очередного ДЛК
   //~__unhook(&Generator::SquareGenerated, &squareAGenerator, &MovePairSearch::OnSquareGenerated);
+  squareAGenerator.SquareGenerated.disconnect_all_slots();
 
   // Вывод итогов поиска
   ShowSearchTotals();

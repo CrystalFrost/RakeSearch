@@ -111,7 +111,7 @@ int main(int argumentsCount, char* argumentsValues[])
   }
   else
   {
-    std::cout << "Please, specify WU file." << endl << endl;
+    std::cout << "Please, specify WU filename and result filename." << endl << endl;
   }
 
   cout << "Press any key to exit ... " << endl;

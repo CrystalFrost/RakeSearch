@@ -183,14 +183,17 @@ void MovePairSearch::StartMoveSearch()
 {
   // Подписываемся на событие нахождения очередного ДЛК
   //~__hook(&Generator::SquareGenerated, &squareAGenerator, &MovePairSearch::OnSquareGenerated);
-  squareAGenerator.SquareGenerated.connect(&MovePairSearch::OnSquareGenerated);
+  //squareAGenerator.SquareGenerated.connect(&MovePairSearch::OnSquareGenerated);
 
   // Запускаем генерацию ДЛК
   squareAGenerator.Start();
 
+  Square newSquare(squareAGenerator.getNewSquare());
+  OnSquareGenerated(newSquare);
+
   // Отписываемся от события нахождения очередного ДЛК
   //~__unhook(&Generator::SquareGenerated, &squareAGenerator, &MovePairSearch::OnSquareGenerated);
-  squareAGenerator.SquareGenerated.disconnect_all_slots();
+  //squareAGenerator.SquareGenerated.disconnect_all_slots();
 
   // Вывод итогов поиска
   ShowSearchTotals();
@@ -212,6 +215,9 @@ void MovePairSearch::OnSquareGenerated(Square newSquare)
     }
   }
 
+   cout << "  got generated square:" << endl; //~
+   cout << newSquare << endl; //~
+  
   // Запуск перетасовки строк
   MoveRows();
 
@@ -268,13 +274,16 @@ void MovePairSearch::MoveRows()
 
   while (currentRowId > 0)
   {
+     cout << "Подбираем строку из исходного квадрата на позицию " << currentRowId << endl; //~
     // Подбираем строку из исходного квадрата на позицию currentRowId формируемого квадрата
     isRowGet = 0;
     gettingRowId = -1;
     for (int i = 0; i < Rank; i++)
     {
+        cout << "Проверяем " << i << "-ю строку исходного квадрата..." << endl; //~
+        if(currentRowId==2) cout << "Казалось бы, что может пойти не так..." << endl; //~
       // Проверяем i-ю строку исходного квадрата
-      if (rowsUsage[i] && rowsHistory[currentRowId][i])
+      if (rowsUsage[i] && rowsHistory[currentRowId][i])  //~ seg.fault, currentRowId==2, i==0
       {
         isRowGet = 1;
         gettingRowId = i;
@@ -286,16 +295,19 @@ void MovePairSearch::MoveRows()
     // Обрабатываем результат поиска
     if (isRowGet)
     {
+       cout << "Обрабатываем нахождение новой строки..." << endl; //~
       // Обрабатываем нахождение новой строки
         // Заносим в квадрат новую строку
           // Считываем номер строки, которая сейчас стоит в квадрате
           oldRowId = currentSquareRows[currentRowId];
           // Записываем новую строку в квадрат, массив флагов использованных строк, в историю использованных строк и массив текущих строк квадрата
+             cout << "Записываем новую строку в квадрат..." << endl; //~
             // Записываем новую строку в квадрат
             for (int j = 0; j < Rank; j++)
             {
               squareB[currentRowId][j] = squareA[gettingRowId][j];
             }
+             cout << "Записали новую строку в квадрат..." << endl; //~
             // Отмечаем строку в массие используемых строк
             rowsUsage[gettingRowId] = 0;
             // Отмечаем строку в истории использования строки
@@ -303,6 +315,7 @@ void MovePairSearch::MoveRows()
             // Записываем строку в массив текущих строк квадрата
             currentSquareRows[currentRowId] = gettingRowId;
 
+          cout << "Очищаем для предыдущей строки флаги использования..." << endl; //~
         // Очищаем для предыдущей строки флаги использования
           // Убираем отметку в массиве используемых строк
           if (oldRowId != -1)
@@ -310,9 +323,11 @@ void MovePairSearch::MoveRows()
             rowsUsage[oldRowId] = 1;
           }
 
+          cout << "Проверяем диагональность получающейся части квадрата..." << endl; //~
         // Проверяем диагональность получающейся части квадрата
           // Сбрасываем флаг сигнализирующий и дубликатах на диагоналях
           duplicationDetected = 0;
+            cout << "Проверка главной диагонали... " << endl; //~
           // Проверка главной диагонали
             // Сбрасываем флаги использованных значений
             for (int i = 0; i < Rank; i++)
@@ -336,6 +351,7 @@ void MovePairSearch::MoveRows()
           // Проверка побочной диагонали, если это имеет смысл
           if (!duplicationDetected)
           {
+              cout << "Проверка побочной диагонали..." << endl; //~
             // Проверка побочной диагонали
               // Сбрасываем флаги использованных значений
               for (int i = 0; i < Rank; i++)
@@ -358,17 +374,21 @@ void MovePairSearch::MoveRows()
               }
           }
 
+          cout << "Обработка итогов проверки диагональности квадрата..." << endl; //~
         // Обработка итогов проверки диагональности квадрата
         if (!duplicationDetected)
         {
+           cout << "Делаем следующий шаг вперёд в зависимости от текущего положения, currentRowId=" << currentRowId << endl; //~
           // Делаем следующий шаг вперёд в зависимости от текущего положения
           if (currentRowId == Rank - 1)
           {
+              cout << "Обрабатываем найденный квадрат ProcessOrthoSquare..." << endl; //~
             // Обрабатываем найденный квадрат
             ProcessOrthoSquare();
           }
           else
           {
+             cout << "Делаем шаг вперёд..." << endl; //~
             // Делаем шаг вперёд
             currentRowId++;
           }
@@ -376,6 +396,7 @@ void MovePairSearch::MoveRows()
     }
     else
     {
+       cout << "Обрабатываем ненахождение новой строки..." << endl; //~
       // Обрабатываем ненахождение новой строки - делаем шаг назад, зачищая флаги задействования, 
       // историю использования, перечень текущих строк квадрата и зачищая сам квадрат
         // Считываем номер текущей строки

@@ -433,11 +433,11 @@ void Generator::CreateCheckpoint()
 // Запуск генерации квадратов
 void Generator::Start()
 {
-  int isGet;      // Флаг получения нового значения для клетки
+  int isGet;        // Флаг получения нового значения для клетки
   int cellValue;    // Новое значение для клетки
-  int oldCellValue;  // Старое значение, стоявшее в клетке
+  int oldCellValue; // Старое значение, стоявшее в клетке
 
-  int stop = 0;    // Флаг достижения окончания расчёта
+  int stop = 0;     // Флаг достижения окончания расчёта
 
   if (isInitialized == Yes)
   {
@@ -611,5 +611,13 @@ void Generator::ProcessSquare()
 
   // Генерируем событие
   /*~ __raise*/ //~SquareGenerated(newSquare);
-  SquareGenerated(newSquare);
+  //SquareGenerated(newSquare);
+
+  //OnSquareGenerated(newSquare);
+  //убрать событие и просто вызывать метод OnSquareGenerated, передавая ему найденный квадрат
+}
+
+Square& Generator::getNewSquare()
+{
+  return newSquare;
 }

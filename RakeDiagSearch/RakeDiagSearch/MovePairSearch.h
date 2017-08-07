@@ -20,7 +20,8 @@ public:
   void ClearBeforeNextSearch();  // Очистка необходимых переменных перед очередным поиском
   void InitializeMoveSearch(string start, string result, string checkpoint, string temp);  // Инициализация поиска
   void StartMoveSearch();        // Запуск поиска ортогональных квадратов методом перестановки строк
-  void OnSquareGenerated(Square newSquare);    // Обработчик события построения ДЛК, запускающий поиск к нему пары
+  void OnSquareGenerated(Square newSquare);  // Обработчик события построения ДЛК, запускающий поиск к нему пары
+
 private:
   static const int CheckpointInterval = 100000;  // Интервал создания контрольных точек
   static const int OrhoSquaresCacheSize = 32;    // Размер кэша для хранения квадратов, ортогональных обрабатываемому

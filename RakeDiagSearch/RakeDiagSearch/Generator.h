@@ -16,9 +16,8 @@ using namespace std;
 class Generator
 {
 public:
-	// __event void SquareGenerated(Square generatedSquare);	// Событие генерирования нового диагонального квадрата
+	// __event void SquareGenerated(Square generatedSquare); // Событие генерирования нового диагонального квадрата
         boost::signals2::signal<void (Square)> SquareGenerated;  // Событие генерирования нового диагонального квадрата
-
 	Generator();					// Конструктор по умолчанию
 	Generator(Generator& source);			// Конструктор копировния
 	void Start();					// Запуск генерации квадратов
@@ -29,8 +28,6 @@ public:
  	Generator& operator = (Generator&  value);									// Оператор копирования
 	friend std::ostream& operator << (std::ostream& os, Generator& value);		// Оператор записи состояние генератора
 	friend std::istream& operator >> (std::istream& is, Generator& value);		// Оператор считывания состояния генератора
-
-        //Square& getNewSquare();                 // Функция для передачи нового квадрата
 
 protected:
 	static const int Rank = Square::Rank;	// Ранг квадрата (для удобства)

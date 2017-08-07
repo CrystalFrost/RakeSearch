@@ -48,11 +48,11 @@ int Compute(string wu_filename, string result_filename)
       // Отправка результата и удаление файла с заданием и контрольной точкой
         // Удаление файла с заданием
         std::cout << "Remove a workunit file: " << localWorkunit << endl;
-        remove(pathLocalWorkunit.c_str());
+        //**remove(pathLocalWorkunit.c_str());
 
         // Удаление файла с контрольной точкой
         std::cout << "Remove a checkpoint file: " << localCheckpoint << endl;
-        remove(pathLocalCheckpoint.c_str());
+        //**remove(pathLocalCheckpoint.c_str());
 
         std::cout << "Result removed" << endl;
         return 0;

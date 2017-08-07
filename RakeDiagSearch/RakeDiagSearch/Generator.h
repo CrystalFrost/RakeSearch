@@ -8,8 +8,8 @@
 # include <string>
 
 # include "Square.h"
-//# include "boost/signals2.hpp"
-//# include "boost/bind.hpp"
+# include "boost/signals2.hpp"
+# include "boost/bind.hpp"
 
 using namespace std;
 
@@ -17,7 +17,7 @@ class Generator
 {
 public:
 	// __event void SquareGenerated(Square generatedSquare);	// Событие генерирования нового диагонального квадрата
-        //boost::signals2::signal<void (Square)> SquareGenerated;  // Событие генерирования нового диагонального квадрата
+        boost::signals2::signal<void (Square)> SquareGenerated;  // Событие генерирования нового диагонального квадрата
 
 	Generator();					// Конструктор по умолчанию
 	Generator(Generator& source);			// Конструктор копировния
@@ -26,11 +26,11 @@ public:
 	void SetFileNames(string start, string result, string checkpoint, string temp);	// Заданием имен файлов параметров и контрольной точки
 	void Initialize(string start, string result, string checkpoint, string temp);	// Инициализация поиска
 
-	Generator& operator = (Generator&  value);									// Оператор копирования
+ 	Generator& operator = (Generator&  value);									// Оператор копирования
 	friend std::ostream& operator << (std::ostream& os, Generator& value);		// Оператор записи состояние генератора
 	friend std::istream& operator >> (std::istream& is, Generator& value);		// Оператор считывания состояния генератора
 
-        Square& getNewSquare();                  // Функция для передачи нового квадрата        
+        //Square& getNewSquare();                 // Функция для передачи нового квадрата
 
 protected:
 	static const int Rank = Square::Rank;	// Ранг квадрата (для удобства)

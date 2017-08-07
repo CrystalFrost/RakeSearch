@@ -611,13 +611,12 @@ void Generator::ProcessSquare()
 
   // Генерируем событие
   /*~ __raise*/ //~SquareGenerated(newSquare);
-  //SquareGenerated(newSquare);
+  SquareGenerated(newSquare);
 
-  //OnSquareGenerated(newSquare);
   //убрать событие и просто вызывать метод OnSquareGenerated, передавая ему найденный квадрат
 }
 
-Square& Generator::getNewSquare()
-{
-  return newSquare;
-}
+//Square& Generator::getNewSquare()
+//{
+//  return newSquare;
+//}

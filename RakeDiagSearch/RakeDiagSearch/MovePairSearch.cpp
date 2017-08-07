@@ -183,17 +183,17 @@ void MovePairSearch::StartMoveSearch()
 {
   // Подписываемся на событие нахождения очередного ДЛК
   //~__hook(&Generator::SquareGenerated, &squareAGenerator, &MovePairSearch::OnSquareGenerated);
-  //squareAGenerator.SquareGenerated.connect(&MovePairSearch::OnSquareGenerated);
+  squareAGenerator.SquareGenerated.connect(&MovePairSearch::OnSquareGenerated, this, _1);
 
   // Запускаем генерацию ДЛК
   squareAGenerator.Start();
 
-  Square newSquare(squareAGenerator.getNewSquare());
-  OnSquareGenerated(newSquare);
+  //Square newSquare(squareAGenerator.getNewSquare());
+  //OnSquareGenerated(newSquare);
 
   // Отписываемся от события нахождения очередного ДЛК
   //~__unhook(&Generator::SquareGenerated, &squareAGenerator, &MovePairSearch::OnSquareGenerated);
-  //squareAGenerator.SquareGenerated.disconnect_all_slots();
+  squareAGenerator.SquareGenerated.disconnect_all_slots();
 
   // Вывод итогов поиска
   ShowSearchTotals();
@@ -361,8 +361,9 @@ void MovePairSearch::MoveRows()
               // Проверка значений побочной диагонали начиная с "её хвоста"
               for (int i = 0; i <= currentRowId; i++)
               {
+
                 // Проверка i-го значения побочной диагонали - элемента (i, rank - 1 - i)
-                if (diagonalValues[squareB[i][Rank - 1 - i]])
+                if (diagonalValues[squareB[i][Rank - 1 - i]])   //~индекс массива = -1!
                 {
                   diagonalValues[squareB[i][Rank - 1 - i]] = 0;
                 }

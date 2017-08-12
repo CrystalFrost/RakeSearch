@@ -1,4 +1,4 @@
-// Генерация заданий для поиска "граблением"
+// Р“РµРЅРµСЂР°С†РёСЏ Р·Р°РґР°РЅРёР№ РґР»СЏ РїРѕРёСЃРєР° "РіСЂР°Р±Р»РµРЅРёРµРј"
 
 # include <iostream>
 # include <string>
@@ -7,14 +7,14 @@
 
 int main()
 {
-	int workunitsCount = 10;
+	int workunitsCount = 1854;
 
 	string startFileName = "start_parameters.txt";
 	string resultFileName = "result.txt";
 	string checkpointFileName = "checkpoint.txt";
 	string tempCheckpointFileName = "checkpoint_new.txt";
 
-	Generator wuGenerator;
+ 	Generator wuGenerator;
 	wuGenerator.GenerateWorkunits(startFileName, resultFileName, checkpointFileName, tempCheckpointFileName, workunitsCount);
 
 	cout << "Press any key to exit ... " << endl;

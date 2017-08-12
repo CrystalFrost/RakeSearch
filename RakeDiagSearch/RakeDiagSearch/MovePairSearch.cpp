@@ -1,546 +1,572 @@
-// Поиск пар диагональных латинских квадратов методом перетасовки строк
+// РџРѕРёСЃРє РїР°СЂ РґРёР°РіРѕРЅР°Р»СЊРЅС‹С… Р»Р°С‚РёРЅСЃРєРёС… РєРІР°РґСЂР°С‚РѕРІ РјРµС‚РѕРґРѕРј РїРµСЂРµС‚Р°СЃРѕРІРєРё СЃС‚СЂРѕРє
 
 # include "MovePairSearch.h"
 
-// Конструктор по умолчанию
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 MovePairSearch::MovePairSearch()
 {
-	Reset();
+  Reset();
 }
 
 
-// Сброс настроек поиска
+// РЎР±СЂРѕСЃ РЅР°СЃС‚СЂРѕРµРє РїРѕРёСЃРєР°
 void MovePairSearch::Reset()
 {
-	// Сброс настроек генератора ДЛК
-	squareAGenerator.Reset();
+  // РЎР±СЂРѕСЃ РЅР°СЃС‚СЂРѕРµРє РіРµРЅРµСЂР°С‚РѕСЂР° Р”Р›Рљ
+  squareAGenerator.Reset();
 
-	// Сброс значений отдельного поиска
-	ClearBeforeNextSearch();
+  // РЎР±СЂРѕСЃ Р·РЅР°С‡РµРЅРёР№ РѕС‚РґРµР»СЊРЅРѕРіРѕ РїРѕРёСЃРєР°
+  ClearBeforeNextSearch();
 
-	// Сброс значений глобальных счётчиков
-	totalPairsCount = 0;
-	totalSquaresWithPairs = 0;
-	totalProcessedSquaresSmall = 0;
-	totalProcessedSquaresLarge = 0;
+  // РЎР±СЂРѕСЃ Р·РЅР°С‡РµРЅРёР№ РіР»РѕР±Р°Р»СЊРЅС‹С… СЃС‡С‘С‚С‡РёРєРѕРІ
+  totalPairsCount = 0;
+  totalSquaresWithPairs = 0;
+  totalProcessedSquaresSmall = 0;
+  totalProcessedSquaresLarge = 0;
 
-	startParametersFileName = "start_parameters.txt";
-	resultFileName = "result.txt";
-	checkpointFileName = "checkpoint.txt";
-	tempCheckpointFileName = "checkpoint_new.txt";
+  startParametersFileName = "start_parameters.txt";
+  resultFileName = "result.txt";
+  checkpointFileName = "checkpoint.txt";
+  tempCheckpointFileName = "checkpoint_new.txt";
 
-	// Задание константы - заголовка в файле параметров или контрольной точке
-	moveSearchGlobalHeader = "# Move search of pairs OLDS status";
-	moveSearchComponentHeader = "# Move search component status";
+  // Р—Р°РґР°РЅРёРµ РєРѕРЅСЃС‚Р°РЅС‚С‹ - Р·Р°РіРѕР»РѕРІРєР° РІ С„Р°Р№Р»Рµ РїР°СЂР°РјРµС‚СЂРѕРІ РёР»Рё РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРµ
+  moveSearchGlobalHeader = "# Move search of pairs OLDS status";
+  moveSearchComponentHeader = "# Move search component status";
 
-	// Сброс флага инициализации
-	isInitialized = 0;
+  // РЎР±СЂРѕСЃ С„Р»Р°РіР° РёРЅРёС†РёР°Р»РёР·Р°С†РёРё
+  isInitialized = 0;
 }
 
 
-// Очистка необходимых переменных перед очередным поиском
+// РћС‡РёСЃС‚РєР° РЅРµРѕР±С…РѕРґРёРјС‹С… РїРµСЂРµРјРµРЅРЅС‹С… РїРµСЂРµРґ РѕС‡РµСЂРµРґРЅС‹Рј РїРѕРёСЃРєРѕРј
 void MovePairSearch::ClearBeforeNextSearch()
 {
-	// Сброс значений матриц квадратов A и B, а также матрицы использования строк при формировании квадрата B
-	for (int i = 0; i < Rank; i++)
-	{
-		for (int j = 0; j < Rank; j++)
-		{
-			squareA[i][j] = -1;
-			squareB[i][j] = -1;
-			rowsHistory[i][j] = 1;
-		}
-	}
+  // РЎР±СЂРѕСЃ Р·РЅР°С‡РµРЅРёР№ РјР°С‚СЂРёС† РєРІР°РґСЂР°С‚РѕРІ A Рё B, Р° С‚Р°РєР¶Рµ РјР°С‚СЂРёС†С‹ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ СЃС‚СЂРѕРє 
+  // РїСЂРё С„РѕСЂРјРёСЂРѕРІР°РЅРёРё РєРІР°РґСЂР°С‚Р° B
+  for (int i = 0; i < Rank; i++)
+  {
+    for (int j = 0; j < Rank; j++)
+    {
+      squareA[i][j] = -1;
+      squareB[i][j] = -1;
+      rowsHistory[i][j] = 1;
+    }
+  }
 
-	// Сброс значений в вектрах использования строк в очередной перестановке и номеров строк, использованных для текущего квадрата
-	for (int i = 0; i < Rank; i++)
-	{
-		rowsUsage[i] = 1;
-		currentSquareRows[i] = -1;
-	}
+  // РЎР±СЂРѕСЃ Р·РЅР°С‡РµРЅРёР№ РІ РІРµРєС‚СЂР°С… РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ СЃС‚СЂРѕРє РІ РѕС‡РµСЂРµРґРЅРѕР№ РїРµСЂРµСЃС‚Р°РЅРѕРІРєРµ Рё РЅРѕРјРµСЂРѕРІ СЃС‚СЂРѕРє, РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅС‹С… РґР»СЏ С‚РµРєСѓС‰РµРіРѕ РєРІР°РґСЂР°С‚Р°
+  for (int i = 0; i < Rank; i++)
+  {
+    rowsUsage[i] = 1;
+    currentSquareRows[i] = -1;
+  }
 
-	// Сброс значения счётчиков пар найденных для заданного ДЛК
-	pairsCount = 0;
+  // РЎР±СЂРѕСЃ Р·РЅР°С‡РµРЅРёСЏ СЃС‡С‘С‚С‡РёРєРѕРІ РїР°СЂ РЅР°Р№РґРµРЅРЅС‹С… РґР»СЏ Р·Р°РґР°РЅРЅРѕРіРѕ Р”Р›Рљ
+  pairsCount = 0;
 }
 
 
-// Инициализация поиска
-void MovePairSearch::InitializeMoveSearch(string start, string result, string checkpoint, string temp)
+// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїРѕРёСЃРєР°
+void MovePairSearch::InitializeMoveSearch(string start, string result, 
+                                       string checkpoint, string temp)
 {
-	fstream startFile;
-	fstream checkpointFile;
+  fstream startFile;
+  fstream checkpointFile;
 
-	// Считывание названий имен файлов
-	startParametersFileName = start;
-	resultFileName = result;
-	checkpointFileName = checkpoint;
-	tempCheckpointFileName = temp;
+  // РЎС‡РёС‚С‹РІР°РЅРёРµ РЅР°Р·РІР°РЅРёР№ РёРјРµРЅ С„Р°Р№Р»РѕРІ
+  startParametersFileName = start;
+  resultFileName = result;
+  checkpointFileName = checkpoint;
+  tempCheckpointFileName = temp;
 
-	// Считываем состояние генератора и поиска из файла контрольной точки или начальных значений
-		// Открытие файлов со стартовыми параметрами и файла контрольной точки
-		startFile.open(startParametersFileName, std::ios_base::in);
-		checkpointFile.open(checkpointFileName, std::ios_base::in);
+  // РЎС‡РёС‚С‹РІР°РµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РіРµРЅРµСЂР°С‚РѕСЂР° Рё РїРѕРёСЃРєР° РёР· С„Р°Р№Р»Р° РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРё РёР»Рё РЅР°С‡Р°Р»СЊРЅС‹С… Р·РЅР°С‡РµРЅРёР№
+    // РћС‚РєСЂС‹С‚РёРµ С„Р°Р№Р»РѕРІ СЃРѕ СЃС‚Р°СЂС‚РѕРІС‹РјРё РїР°СЂР°РјРµС‚СЂР°РјРё Рё С„Р°Р№Р»Р° РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРё
+    startFile.open(startParametersFileName.c_str(), std::ios_base::in);
+    checkpointFile.open(checkpointFileName.c_str(), std::ios_base::in);
 
-		// Считываение состояния
-		if (checkpointFile.is_open())
-		{
-			// Считывание состояния из файла контрольной точки
-			Read(checkpointFile);
-			isStartFromCheckpoint = 1;
-		}
-		else
-		{
-			// Считывание состояния из файла стартовых параметров
-			Read(startFile);
-			isStartFromCheckpoint = 0;
-		}
+    // РЎС‡РёС‚С‹РІР°РµРЅРёРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ
+    if (checkpointFile.is_open())
+    {
+      // РЎС‡РёС‚С‹РІР°РЅРёРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ РёР· С„Р°Р№Р»Р° РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРё
+      Read(checkpointFile);
+      isStartFromCheckpoint = 1;
+    }
+    else
+    {
+      // РЎС‡РёС‚С‹РІР°РЅРёРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ РёР· С„Р°Р№Р»Р° СЃС‚Р°СЂС‚РѕРІС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ
+      Read(startFile);
+      isStartFromCheckpoint = 0;
+    }
 
-		// Закрытие файлов
-		startFile.close();
-		checkpointFile.close();
+    // Р—Р°РєСЂС‹С‚РёРµ С„Р°Р№Р»РѕРІ
+    startFile.close();
+    checkpointFile.close();
 }
 
 
-// Чтение состояния поиска из потока
+// Р§С‚РµРЅРёРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ РїРѕРёСЃРєР° РёР· РїРѕС‚РѕРєР°
 void MovePairSearch::Read(istream& is)
 {
-	string marker;
+  string marker;
 
-	// Сброс флага инициализированности
-	isInitialized = 0;
+  // РЎР±СЂРѕСЃ С„Р»Р°РіР° РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅРѕСЃС‚Рё
+  isInitialized = 0;
 
-	// Считывание состояния поиска
-		// Находим маркер начала состояния
-		do
-		{
-			std::getline(is, marker);
-		}
-		while (marker != moveSearchGlobalHeader);
-		
-		// Считываем состояние генератора ДЛК
-		is >> squareAGenerator;
+  // РЎС‡РёС‚С‹РІР°РЅРёРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ РїРѕРёСЃРєР°
+    // РќР°С…РѕРґРёРј РјР°СЂРєРµСЂ РЅР°С‡Р°Р»Р° СЃРѕСЃС‚РѕСЏРЅРёСЏ
+    do
+    {
+      std::getline(is, marker);
+    }
+    while (marker != moveSearchGlobalHeader);
+    
+    // РЎС‡РёС‚С‹РІР°РµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РіРµРЅРµСЂР°С‚РѕСЂР° Р”Р›Рљ
+    is >> squareAGenerator;
 
-		// Находим маркер компоненты перетасовки
-		do
-		{
-			std::getline(is, marker);
-		}
-		while (marker != moveSearchComponentHeader);
+    // РќР°С…РѕРґРёРј РјР°СЂРєРµСЂ РєРѕРјРїРѕРЅРµРЅС‚С‹ РїРµСЂРµС‚Р°СЃРѕРІРєРё
+    do
+    {
+      std::getline(is, marker);
+    }
+    while (marker != moveSearchComponentHeader);
 
-		// Считываем переменные поиска перетасовкой (по факту - переменные со статистикой)
-		is >> pairsCount;
-		is >> totalPairsCount;
-		is >> totalSquaresWithPairs;
-		is >> totalProcessedSquaresLarge;
-		is >> totalProcessedSquaresSmall;
+    // РЎС‡РёС‚С‹РІР°РµРј РїРµСЂРµРјРµРЅРЅС‹Рµ РїРѕРёСЃРєР° РїРµСЂРµС‚Р°СЃРѕРІРєРѕР№ (РїРѕ С„Р°РєС‚Сѓ - РїРµСЂРµРјРµРЅРЅС‹Рµ СЃРѕ СЃС‚Р°С‚РёСЃС‚РёРєРѕР№)
+    is >> pairsCount;
+    is >> totalPairsCount;
+    is >> totalSquaresWithPairs;
+    is >> totalProcessedSquaresLarge;
+    is >> totalProcessedSquaresSmall;
 
-	// Выставление флага инициализированности
-	isInitialized = 1;
+  // Р’С‹СЃС‚Р°РІР»РµРЅРёРµ С„Р»Р°РіР° РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅРѕСЃС‚Рё
+  isInitialized = 1;
 }
 
 
-// Запись состояния поиска в поток
+// Р—Р°РїРёСЃСЊ СЃРѕСЃС‚РѕСЏРЅРёСЏ РїРѕРёСЃРєР° РІ РїРѕС‚РѕРє
 void MovePairSearch::Write(ostream& os)
 {
-	// Запись состояния поиска
-		// Запись заголовка
-		os << moveSearchGlobalHeader << endl;
-		os << endl;
+  // Р—Р°РїРёСЃСЊ СЃРѕСЃС‚РѕСЏРЅРёСЏ РїРѕРёСЃРєР°
+    // Р—Р°РїРёСЃСЊ Р·Р°РіРѕР»РѕРІРєР°
+    os << moveSearchGlobalHeader << endl;
+    os << endl;
 
-		// Запись состояния генератора ДЛК
-		os << squareAGenerator;
-		os << endl;
+    // Р—Р°РїРёСЃСЊ СЃРѕСЃС‚РѕСЏРЅРёСЏ РіРµРЅРµСЂР°С‚РѕСЂР° Р”Р›Рљ
+    os << squareAGenerator;
+    os << endl;
 
-		// Запись заголовка блока перетасовки
-		os << moveSearchComponentHeader << endl;
-		os << endl;
+    // Р—Р°РїРёСЃСЊ Р·Р°РіРѕР»РѕРІРєР° Р±Р»РѕРєР° РїРµСЂРµС‚Р°СЃРѕРІРєРё
+    os << moveSearchComponentHeader << endl;
+    os << endl;
 
-		// Запись статистических показателей
-		os << pairsCount << " " << totalPairsCount << " " << totalSquaresWithPairs << endl;
-		os << totalProcessedSquaresLarge << " " << totalProcessedSquaresSmall << endl;
-		os << endl;
+    // Р—Р°РїРёСЃСЊ СЃС‚Р°С‚РёСЃС‚РёС‡РµСЃРєРёС… РїРѕРєР°Р·Р°С‚РµР»РµР№
+    os << pairsCount << " " << totalPairsCount << " " << totalSquaresWithPairs << endl;
+    os << totalProcessedSquaresLarge << " " << totalProcessedSquaresSmall << endl;
+    os << endl;
 }
 
 
-// Создание контрольной точки
+// РЎРѕР·РґР°РЅРёРµ РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРё
 void MovePairSearch::CreateCheckpoint()
 {
-	fstream checkpointFile;
+  fstream checkpointFile;
 
-	checkpointFile.open(tempCheckpointFileName, std::ios_base::out);
-	if (checkpointFile.is_open())
-	{
-		Write(checkpointFile);
-		checkpointFile.close();
-		remove(checkpointFileName.c_str());
-		rename(tempCheckpointFileName.c_str(), checkpointFileName.c_str());
-	}
+  checkpointFile.open(tempCheckpointFileName.c_str(), std::ios_base::out);
+  if (checkpointFile.is_open())
+  {
+    Write(checkpointFile);
+    checkpointFile.close();
+    remove(checkpointFileName.c_str());
+    rename(tempCheckpointFileName.c_str(), checkpointFileName.c_str());
+  }
 }
 
 
-// Запуск поиска ортогональных квадратов методом перестановки строк
+// Р—Р°РїСѓСЃРє РїРѕРёСЃРєР° РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅС‹С… РєРІР°РґСЂР°С‚РѕРІ РјРµС‚РѕРґРѕРј РїРµСЂРµСЃС‚Р°РЅРѕРІРєРё СЃС‚СЂРѕРє
 void MovePairSearch::StartMoveSearch()
 {
-	// Подписываемся на событие нахождения очередного ДЛК
-	__hook(&Generator::SquareGenerated, &squareAGenerator, &MovePairSearch::OnSquareGenerated);
+  // РџРѕРґРїРёСЃС‹РІР°РµРјСЃСЏ РЅР° СЃРѕР±С‹С‚РёРµ РЅР°С…РѕР¶РґРµРЅРёСЏ РѕС‡РµСЂРµРґРЅРѕРіРѕ Р”Р›Рљ
+  squareAGenerator.SquareGenerated.connect(boost::bind(
+                   &MovePairSearch::OnSquareGenerated, this, _1));
+ 
+  // Р—Р°РїСѓСЃРєР°РµРј РіРµРЅРµСЂР°С†РёСЋ Р”Р›Рљ
+  squareAGenerator.Start();
 
-	// Запускаем генерацию ДЛК
-	squareAGenerator.Start();
+  // РћС‚РїРёСЃС‹РІР°РµРјСЃСЏ РѕС‚ СЃРѕР±С‹С‚РёСЏ РЅР°С…РѕР¶РґРµРЅРёСЏ РѕС‡РµСЂРµРґРЅРѕРіРѕ Р”Р›Рљ
+  squareAGenerator.SquareGenerated.disconnect_all_slots();
 
-	// Отписываемся от события нахождения очередного ДЛК
-	__unhook(&Generator::SquareGenerated, &squareAGenerator, &MovePairSearch::OnSquareGenerated);
-
-	// Вывод итогов поиска
-	ShowSearchTotals();
+  // Р’С‹РІРѕРґ РёС‚РѕРіРѕРІ РїРѕРёСЃРєР°
+  ShowSearchTotals();
 }
 
 
-// Обработчик события построения ДЛК, запускающий поиск к нему пары
+// РћР±СЂР°Р±РѕС‚С‡РёРє СЃРѕР±С‹С‚РёСЏ РїРѕСЃС‚СЂРѕРµРЅРёСЏ Р”Р›Рљ, Р·Р°РїСѓСЃРєР°СЋС‰РёР№ РїРѕРёСЃРє Рє РЅРµРјСѓ РїР°СЂС‹
 void MovePairSearch::OnSquareGenerated(Square newSquare)
 {
-	// Очистка перед поиском квадратов, отртогональных очередному ДЛК
-	ClearBeforeNextSearch();
+  // РћС‡РёСЃС‚РєР° РїРµСЂРµРґ РїРѕРёСЃРєРѕРј РєРІР°РґСЂР°С‚РѕРІ, РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅС‹С… РѕС‡РµСЂРµРґРЅРѕРјСѓ Р”Р›Рљ
+  ClearBeforeNextSearch();
 
-	// Запоминание найденного квадрата
-	for (int i = 0; i < Rank; i++)
-	{
-		for (int j = 0; j < Rank; j++)
-		{
-			squareA[i][j] = newSquare.Matrix[i][j];
-		}
-	}
+  // Р—Р°РїРѕРјРёРЅР°РЅРёРµ РЅР°Р№РґРµРЅРЅРѕРіРѕ РєРІР°РґСЂР°С‚Р°
+  for (int i = 0; i < Rank; i++)
+  {
+    for (int j = 0; j < Rank; j++)
+    {
+      squareA[i][j] = newSquare.Matrix[i][j];
+    }
+  }
+  
+  // Р—Р°РїСѓСЃРє РїРµСЂРµС‚Р°СЃРѕРІРєРё СЃС‚СЂРѕРє
+  MoveRows();
 
-	// Запуск перетасовки строк
-	MoveRows();
+  // РџСЂРѕРІРµСЂРєР° РІР·Р°РёРјРЅРѕР№ РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅРѕСЃС‚Рё РєРІР°РґСЂР°С‚РѕРІ
+  if (pairsCount > 0)
+  {
+    CheckMutualOrthogonality();
+  }
 
-	// Проверка взаимной ортогональности квадратов
-	if (pairsCount > 0)
-	{
-		CheckMutualOrthogonality();
-	}
+  // РЎРѕР±РёСЂР°РЅРёРµ СЃС‚Р°С‚РёСЃС‚РёРєРё РїРѕ РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹Рј РєРІР°РґСЂР°С‚Р°Рј
+  totalProcessedSquaresSmall++;
+  if (totalProcessedSquaresSmall > 0 && totalProcessedSquaresSmall % 1000000000 == 0)
+  {
+    totalProcessedSquaresLarge++;
+    totalProcessedSquaresSmall = 0;
+  }
 
-	// Собирание статистики по обработанным квадратам
-	totalProcessedSquaresSmall++;
-	if (totalProcessedSquaresSmall > 0 && totalProcessedSquaresSmall % 1000000000 == 0)
-	{
-		totalProcessedSquaresLarge++;
-		totalProcessedSquaresSmall = 0;
-	}
+  // Р¤РёРєСЃР°С†РёСЏ РёРЅС„РѕСЂРјР°С†РёРё Рѕ С…РѕРґРµ РѕР±СЂР°Р±РѕС‚РєРё
+  if (totalProcessedSquaresSmall % CheckpointInterval == 0)
+  {
+    CreateCheckpoint();
 
-	// Фиксация информации о ходе обработки
-	if (totalProcessedSquaresSmall % CheckpointInterval == 0)
-	{
-		CreateCheckpoint();
-
-		cout << "# ------------------------" << endl;
-		cout << "# Processed " << totalProcessedSquaresLarge << " milliards and " << totalProcessedSquaresSmall << " squares." << endl;
-		cout << "# Last processed square:" << endl;
-		cout << endl;
-		cout << newSquare;
-		cout << "# ------------------------" << endl;
-	}
+    cout << "# ------------------------" << endl;
+    cout << "# Processed " << totalProcessedSquaresLarge << " milliards and " << totalProcessedSquaresSmall << " squares." << endl;
+    cout << "# Last processed square:" << endl;
+    cout << endl;
+    cout << newSquare;
+    cout << "# ------------------------" << endl;
+  }
 }
 
 
-// Перетасовка строк заданного ДЛК в поиске ОДЛК к нему
+// РџРµСЂРµС‚Р°СЃРѕРІРєР° СЃС‚СЂРѕРє Р·Р°РґР°РЅРЅРѕРіРѕ Р”Р›Рљ РІ РїРѕРёСЃРєРµ РћР”Р›Рљ Рє РЅРµРјСѓ
 void MovePairSearch::MoveRows()
 {
-	int currentRowId = 1;
-	int isRowGet = 0;
-	int gettingRowId = -1;
-	int oldRowId = -1;
+  int currentRowId = 1;
+  int isRowGet = 0;
+  int gettingRowId = -1;
+  int oldRowId = -1;
 
-	int diagonalValues[Rank];
-	int duplicationDetected = 0;
+  int diagonalValues[Rank];
+  int duplicationDetected = 0;
 
-	// Записываем первую строку квадрата A в B с целью поиска нормализованных квадратов
-	for (int j = 0; j < Rank; j++)
-	{
-		squareB[0][j] = squareA[0][j];
-	}
+  // Р—Р°РїРёСЃС‹РІР°РµРј РїРµСЂРІСѓСЋ СЃС‚СЂРѕРєСѓ РєРІР°РґСЂР°С‚Р° A РІ B СЃ С†РµР»СЊСЋ РїРѕРёСЃРєР° РЅРѕСЂРјР°Р»РёР·РѕРІР°РЅРЅС‹С… РєРІР°РґСЂР°С‚РѕРІ
+  for (int j = 0; j < Rank; j++)
+  {
+    squareB[0][j] = squareA[0][j];
+  }
 
-	// Отмечаем задействование первой строки, т.к. она фиксированная
-	rowsUsage[0] = 0;
-	rowsHistory[0][0] = 0;
-	currentSquareRows[0] = 0;
+  // РћС‚РјРµС‡Р°РµРј Р·Р°РґРµР№СЃС‚РІРѕРІР°РЅРёРµ РїРµСЂРІРѕР№ СЃС‚СЂРѕРєРё, С‚.Рє. РѕРЅР° С„РёРєСЃРёСЂРѕРІР°РЅРЅР°СЏ
+  rowsUsage[0] = 0;
+  rowsHistory[0][0] = 0;
+  currentSquareRows[0] = 0;
 
-	while (currentRowId > 0)
-	{
-		// Подбираем строку из исходного квадрата на позицию currentRowId формируемого квадрата
-		isRowGet = 0;
-		gettingRowId = -1;
-		for (int i = 0; i < Rank; i++)
-		{
-			// Проверяем i-ю строку исходного квадрата
-			if (rowsUsage[i] && rowsHistory[currentRowId][i])
-			{
-				isRowGet = 1;
-				gettingRowId = i;
+  while (currentRowId > 0)
+  {
+    // РџРѕРґР±РёСЂР°РµРј СЃС‚СЂРѕРєСѓ РёР· РёСЃС…РѕРґРЅРѕРіРѕ РєРІР°РґСЂР°С‚Р° РЅР° РїРѕР·РёС†РёСЋ currentRowId С„РѕСЂРјРёСЂСѓРµРјРѕРіРѕ РєРІР°РґСЂР°С‚Р°
+    isRowGet = 0;
+    gettingRowId = -1;
+    for (int i = 0; i < Rank; i++)
+    {
+      // РџСЂРѕРІРµСЂСЏРµРј i-СЋ СЃС‚СЂРѕРєСѓ РёСЃС…РѕРґРЅРѕРіРѕ РєРІР°РґСЂР°С‚Р°
+      if (rowsUsage[i] && rowsHistory[currentRowId][i])
+      {
+        isRowGet = 1;
+        gettingRowId = i;
 
-				break;
-			}
-		}
+        break;
+      }
+    }
 
-		// Обрабатываем результат поиска
-		if (isRowGet)
-		{
-			// Обрабатываем нахождение новой строки
-				// Заносим в квадрат новую строку
-					// Считываем номер строки, которая сейчас стоит в квадрате
-					oldRowId = currentSquareRows[currentRowId];
-					// Записываем новую строку в квадрат, массив флагов использованных строк, в историю использованных строк и массив текущих строк квадрата
-						// Записываем новую строку в квадрат
-						for (int j = 0; j < Rank; j++)
-						{
-							squareB[currentRowId][j] = squareA[gettingRowId][j];
-						}
-						// Отмечаем строку в массие используемых строк
-						rowsUsage[gettingRowId] = 0;
-						// Отмечаем строку в истории использования строки
-						rowsHistory[currentRowId][gettingRowId] = 0;
-						// Записываем строку в массив текущих строк квадрата
-						currentSquareRows[currentRowId] = gettingRowId;
+    // РћР±СЂР°Р±Р°С‚С‹РІР°РµРј СЂРµР·СѓР»СЊС‚Р°С‚ РїРѕРёСЃРєР°
+    if (isRowGet)
+    {
+      // РћР±СЂР°Р±Р°С‚С‹РІР°РµРј РЅР°С…РѕР¶РґРµРЅРёРµ РЅРѕРІРѕР№ СЃС‚СЂРѕРєРё
+        // Р—Р°РЅРѕСЃРёРј РІ РєРІР°РґСЂР°С‚ РЅРѕРІСѓСЋ СЃС‚СЂРѕРєСѓ
+          // РЎС‡РёС‚С‹РІР°РµРј РЅРѕРјРµСЂ СЃС‚СЂРѕРєРё, РєРѕС‚РѕСЂР°СЏ СЃРµР№С‡Р°СЃ СЃС‚РѕРёС‚ РІ РєРІР°РґСЂР°С‚Рµ
+          oldRowId = currentSquareRows[currentRowId];
+          // Р—Р°РїРёСЃС‹РІР°РµРј РЅРѕРІСѓСЋ СЃС‚СЂРѕРєСѓ РІ РєРІР°РґСЂР°С‚, РјР°СЃСЃРёРІ С„Р»Р°РіРѕРІ РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅС‹С… СЃС‚СЂРѕРє, 
+          //РІ РёСЃС‚РѕСЂРёСЋ РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅС‹С… СЃС‚СЂРѕРє Рё РјР°СЃСЃРёРІ С‚РµРєСѓС‰РёС… СЃС‚СЂРѕРє РєРІР°РґСЂР°С‚Р°
+            // Р—Р°РїРёСЃС‹РІР°РµРј РЅРѕРІСѓСЋ СЃС‚СЂРѕРєСѓ РІ РєРІР°РґСЂР°С‚
+            for (int j = 0; j < Rank; j++)
+            {
+              squareB[currentRowId][j] = squareA[gettingRowId][j];
+            }
+            // РћС‚РјРµС‡Р°РµРј СЃС‚СЂРѕРєСѓ РІ РјР°СЃСЃРёРµ РёСЃРїРѕР»СЊР·СѓРµРјС‹С… СЃС‚СЂРѕРє
+            rowsUsage[gettingRowId] = 0;
+            // РћС‚РјРµС‡Р°РµРј СЃС‚СЂРѕРєСѓ РІ РёСЃС‚РѕСЂРёРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ СЃС‚СЂРѕРєРё
+            rowsHistory[currentRowId][gettingRowId] = 0;
+            // Р—Р°РїРёСЃС‹РІР°РµРј СЃС‚СЂРѕРєСѓ РІ РјР°СЃСЃРёРІ С‚РµРєСѓС‰РёС… СЃС‚СЂРѕРє РєРІР°РґСЂР°С‚Р°
+            currentSquareRows[currentRowId] = gettingRowId;
 
-				// Очищаем для предыдущей строки флаги использования
-					// Убираем отметку в массиве используемых строк
-					if (oldRowId != -1)
-					{
-						rowsUsage[oldRowId] = 1;
-					}
+        // РћС‡РёС‰Р°РµРј РґР»СЏ РїСЂРµРґС‹РґСѓС‰РµР№ СЃС‚СЂРѕРєРё С„Р»Р°РіРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ
+          // РЈР±РёСЂР°РµРј РѕС‚РјРµС‚РєСѓ РІ РјР°СЃСЃРёРІРµ РёСЃРїРѕР»СЊР·СѓРµРјС‹С… СЃС‚СЂРѕРє
+          if (oldRowId != -1)
+          {
+            rowsUsage[oldRowId] = 1;
+          }
 
-				// Проверяем диагональность получающейся части квадрата
-					// Сбрасываем флаг сигнализирующий и дубликатах на диагоналях
-					duplicationDetected = 0;
-					// Проверка главной диагонали
-						// Сбрасываем флаги использованных значений
-						for (int i = 0; i < Rank; i++)
-						{
-							diagonalValues[i] = 1;
-						}
-						// Проверка значений главной диагонали
-						for (int i = 0; i <= currentRowId; i++)
-						{
-							// Проверка i-го элемента главной диагонали - клетки (i, i)
-							if (diagonalValues[squareB[i][i]])
-							{
-								diagonalValues[squareB[i][i]] = 0;
-							}
-							else
-							{
-								duplicationDetected = 1;
-								break;
-							}
-						}
-					// Проверка побочной диагонали, если это имеет смысл
-					if (!duplicationDetected)
-					{
-						// Проверка побочной диагонали
-							// Сбрасываем флаги использованных значений
-							for (int i = 0; i < Rank; i++)
-							{
-								diagonalValues[i] = 1;
-							}
-							// Проверка значений побочной диагонали начиная с "её хвоста"
-							for (int i = 0; i <= currentRowId; i++)
-							{
-								// Проверка i-го значения побочной диагонали - элемента (i, rank - 1 - i)
-								if (diagonalValues[squareB[i][Rank - 1 - i]])
-								{
-									diagonalValues[squareB[i][Rank - 1 - i]] = 0;
-								}
-								else
-								{
-									duplicationDetected = 1;
-									break;
-								}
-							}
-					}
+        // РџСЂРѕРІРµСЂСЏРµРј РґРёР°РіРѕРЅР°Р»СЊРЅРѕСЃС‚СЊ РїРѕР»СѓС‡Р°СЋС‰РµР№СЃСЏ С‡Р°СЃС‚Рё РєРІР°РґСЂР°С‚Р°
+          // РЎР±СЂР°СЃС‹РІР°РµРј С„Р»Р°Рі СЃРёРіРЅР°Р»РёР·РёСЂСѓСЋС‰РёР№ Рё РґСѓР±Р»РёРєР°С‚Р°С… РЅР° РґРёР°РіРѕРЅР°Р»СЏС…
+          duplicationDetected = 0;
+          // РџСЂРѕРІРµСЂРєР° РіР»Р°РІРЅРѕР№ РґРёР°РіРѕРЅР°Р»Рё
+            // РЎР±СЂР°СЃС‹РІР°РµРј С„Р»Р°РіРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅС‹С… Р·РЅР°С‡РµРЅРёР№
+            for (int i = 0; i < Rank; i++)
+            {
+              diagonalValues[i] = 1;
+            }
+            // РџСЂРѕРІРµСЂРєР° Р·РЅР°С‡РµРЅРёР№ РіР»Р°РІРЅРѕР№ РґРёР°РіРѕРЅР°Р»Рё
+            for (int i = 0; i <= currentRowId; i++)
+            {
+              // РџСЂРѕРІРµСЂРєР° i-РіРѕ СЌР»РµРјРµРЅС‚Р° РіР»Р°РІРЅРѕР№ РґРёР°РіРѕРЅР°Р»Рё - РєР»РµС‚РєРё (i, i)
+              if (diagonalValues[squareB[i][i]])
+              {
+                diagonalValues[squareB[i][i]] = 0;
+              }
+              else
+              {
+                duplicationDetected = 1;
+                break;
+              }
+            }
+          // РџСЂРѕРІРµСЂРєР° РїРѕР±РѕС‡РЅРѕР№ РґРёР°РіРѕРЅР°Р»Рё, РµСЃР»Рё СЌС‚Рѕ РёРјРµРµС‚ СЃРјС‹СЃР»
+          if (!duplicationDetected)
+          {
+            // РџСЂРѕРІРµСЂРєР° РїРѕР±РѕС‡РЅРѕР№ РґРёР°РіРѕРЅР°Р»Рё
+              // РЎР±СЂР°СЃС‹РІР°РµРј С„Р»Р°РіРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅС‹С… Р·РЅР°С‡РµРЅРёР№
+              for (int i = 0; i < Rank; i++)
+              {
+                diagonalValues[i] = 1;
+              }
+              // РџСЂРѕРІРµСЂРєР° Р·РЅР°С‡РµРЅРёР№ РїРѕР±РѕС‡РЅРѕР№ РґРёР°РіРѕРЅР°Р»Рё РЅР°С‡РёРЅР°СЏ СЃ "РµС‘ С…РІРѕСЃС‚Р°"
+              for (int i = 0; i <= currentRowId; i++)
+              {
 
-				// Обработка итогов проверки диагональности квадрата
-				if (!duplicationDetected)
-				{
-					// Делаем следующий шаг вперёд в зависимости от текущего положения
-					if (currentRowId == Rank - 1)
-					{
-						// Обрабатываем найденный квадрат
-						ProcessOrthoSquare();
-					}
-					else
-					{
-						// Делаем шаг вперёд
-						currentRowId++;
-					}
-				}
-		}
-		else
-		{
-			// Обрабатываем ненахождение новой строки - делаем шаг назад, зачищая флаги задействования, 
-			// историю использования, перечень текущих строк квадрата и зачищая сам квадрат
-				// Считываем номер текущей строки
-				oldRowId = currentSquareRows[currentRowId];
-				// Зачищаем текущую строку в квадрате
-				for (int j = 0; j < Rank; j++)
-				{
-					squareB[currentRowId][j] = -1;
-				}
-				// Зачищаем текущий состав квадрата
-				currentSquareRows[currentRowId] = -1;
-				// Зачищаем флаг возможного задействования
-				rowsUsage[oldRowId] = 1;
-				// Зачищаем историю работы с этой строкой
-				for (int i = 0; i < Rank; i++)
-				{
-					rowsHistory[currentRowId][i] = 1;
-				}
-				// Делаем шаг назад
-				currentRowId--;
-		}
-	}
+                // РџСЂРѕРІРµСЂРєР° i-РіРѕ Р·РЅР°С‡РµРЅРёСЏ РїРѕР±РѕС‡РЅРѕР№ РґРёР°РіРѕРЅР°Р»Рё - СЌР»РµРјРµРЅС‚Р° (i, rank - 1 - i)
+                if (diagonalValues[squareB[i][Rank - 1 - i]]) 
+                {
+                  diagonalValues[squareB[i][Rank - 1 - i]] = 0;
+                }
+                else
+                {
+                  duplicationDetected = 1;
+                  break;
+                }
+              }
+          }
+
+        // РћР±СЂР°Р±РѕС‚РєР° РёС‚РѕРіРѕРІ РїСЂРѕРІРµСЂРєРё РґРёР°РіРѕРЅР°Р»СЊРЅРѕСЃС‚Рё РєРІР°РґСЂР°С‚Р°
+        if (!duplicationDetected)
+        {
+          // Р”РµР»Р°РµРј СЃР»РµРґСѓСЋС‰РёР№ С€Р°Рі РІРїРµСЂС‘Рґ РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ С‚РµРєСѓС‰РµРіРѕ РїРѕР»РѕР¶РµРЅРёСЏ
+          if (currentRowId == Rank - 1)
+          {
+            // РћР±СЂР°Р±Р°С‚С‹РІР°РµРј РЅР°Р№РґРµРЅРЅС‹Р№ РєРІР°РґСЂР°С‚
+            ProcessOrthoSquare();
+          }
+          else
+          {
+            // Р”РµР»Р°РµРј С€Р°Рі РІРїРµСЂС‘Рґ
+            currentRowId++;
+          }
+        }
+    }
+    else
+    {
+      // РћР±СЂР°Р±Р°С‚С‹РІР°РµРј РЅРµРЅР°С…РѕР¶РґРµРЅРёРµ РЅРѕРІРѕР№ СЃС‚СЂРѕРєРё - РґРµР»Р°РµРј С€Р°Рі РЅР°Р·Р°Рґ, Р·Р°С‡РёС‰Р°СЏ С„Р»Р°РіРё Р·Р°РґРµР№СЃС‚РІРѕРІР°РЅРёСЏ, 
+      // РёСЃС‚РѕСЂРёСЋ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ, РїРµСЂРµС‡РµРЅСЊ С‚РµРєСѓС‰РёС… СЃС‚СЂРѕРє РєРІР°РґСЂР°С‚Р° Рё Р·Р°С‡РёС‰Р°СЏ СЃР°Рј РєРІР°РґСЂР°С‚
+        // РЎС‡РёС‚С‹РІР°РµРј РЅРѕРјРµСЂ С‚РµРєСѓС‰РµР№ СЃС‚СЂРѕРєРё
+        oldRowId = currentSquareRows[currentRowId];
+        // Р—Р°С‡РёС‰Р°РµРј С‚РµРєСѓС‰СѓСЋ СЃС‚СЂРѕРєСѓ РІ РєРІР°РґСЂР°С‚Рµ
+        for (int j = 0; j < Rank; j++)
+        {
+          squareB[currentRowId][j] = -1;
+        }
+        // Р—Р°С‡РёС‰Р°РµРј С‚РµРєСѓС‰РёР№ СЃРѕСЃС‚Р°РІ РєРІР°РґСЂР°С‚Р°
+        currentSquareRows[currentRowId] = -1;
+        // Р—Р°С‡РёС‰Р°РµРј С„Р»Р°Рі РІРѕР·РјРѕР¶РЅРѕРіРѕ Р·Р°РґРµР№СЃС‚РІРѕРІР°РЅРёСЏ
+        rowsUsage[oldRowId] = 1;
+        // Р—Р°С‡РёС‰Р°РµРј РёСЃС‚РѕСЂРёСЋ СЂР°Р±РѕС‚С‹ СЃ СЌС‚РѕР№ СЃС‚СЂРѕРєРѕР№
+        for (int i = 0; i < Rank; i++)
+        {
+          rowsHistory[currentRowId][i] = 1;
+        }
+        // Р”РµР»Р°РµРј С€Р°Рі РЅР°Р·Р°Рґ
+        currentRowId--;
+    }
+  }
 }
 
 
-// Обработка найденного ортогонального квадрата
+// РћР±СЂР°Р±РѕС‚РєР° РЅР°Р№РґРµРЅРЅРѕРіРѕ РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅРѕРіРѕ РєРІР°РґСЂР°С‚Р°
 void MovePairSearch::ProcessOrthoSquare()
 {
-	int isDifferent = 0;			// Число отличий в строках от исходного квадрата (для отсева формирования его копии)
-	fstream resultFile;				// Поток для I/O в файл с результатами
+  int isDifferent = 0;      // Р§РёСЃР»Рѕ РѕС‚Р»РёС‡РёР№ РІ СЃС‚СЂРѕРєР°С… РѕС‚ РёСЃС…РѕРґРЅРѕРіРѕ РєРІР°РґСЂР°С‚Р° (РґР»СЏ РѕС‚СЃРµРІР° С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ РµРіРѕ РєРѕРїРёРё)
+  ofstream resultFile;        // РџРѕС‚РѕРє РґР»СЏ I/O РІ С„Р°Р№Р» СЃ СЂРµР·СѓР»СЊС‚Р°С‚Р°РјРё
 
-	Square a(squareA);				// Квадрат A как объект
-	Square b(squareB);				// Квадрат B как объект
+  Square a(squareA);        // РљРІР°РґСЂР°С‚ A РєР°Рє РѕР±СЉРµРєС‚
+  Square b(squareB);        // РљРІР°РґСЂР°С‚ B РєР°Рє РѕР±СЉРµРєС‚
 
-	int orthoMetric = Rank*Rank;	// Значение метрики ортогональности, говорящее о том, что квадраты - полностью ортогональны
+  int orthoMetric = Rank*Rank;  // Р—РЅР°С‡РµРЅРёРµ РјРµС‚СЂРёРєРё РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅРѕСЃС‚Рё, РіРѕРІРѕСЂСЏС‰РµРµ Рѕ С‚РѕРј, С‡С‚Рѕ РєРІР°РґСЂР°С‚С‹ - РїРѕР»РЅРѕСЃС‚СЊСЋ РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅС‹
 
-	// Проверяем его на то, что он копия исходного
-	isDifferent = 0;
-	
-	for (int i = 0; i < Rank; i++)
-	{
-		if (currentSquareRows[i] != i)
-		{
-			isDifferent = 1;
-			break;
-		}
-	}
+  // РџСЂРѕРІРµСЂСЏРµРј РµРіРѕ РЅР° С‚Рѕ, С‡С‚Рѕ РѕРЅ РєРѕРїРёСЏ РёСЃС…РѕРґРЅРѕРіРѕ
+  isDifferent = 0;
+  
+  for (int i = 0; i < Rank; i++)
+  {
+    if (currentSquareRows[i] != i)
+    {
+      isDifferent = 1;
+      break;
+    }
+  }
 
-	// Обработка найденного квадрата
-	if (isDifferent && Square::OrthoDegree(a, b) == orthoMetric && b.IsDiagonal() && b.IsLatin() && a.IsDiagonal() && b.IsLatin())
-	{
-		// Запись информации о найденном квадрате
-			// Увеличение счётчика квадратов
-			pairsCount++;
-			totalPairsCount++;
+  // РћР±СЂР°Р±РѕС‚РєР° РЅР°Р№РґРµРЅРЅРѕРіРѕ РєРІР°РґСЂР°С‚Р°
+  if (isDifferent && Square::OrthoDegree(a, b) == orthoMetric 
+      && b.IsDiagonal() && b.IsLatin() && a.IsDiagonal() && b.IsLatin())
+  {
+    // Р—Р°РїРёСЃСЊ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РЅР°Р№РґРµРЅРЅРѕРј РєРІР°РґСЂР°С‚Рµ
+      // РЈРІРµР»РёС‡РµРЅРёРµ СЃС‡С‘С‚С‡РёРєР° РєРІР°РґСЂР°С‚РѕРІ
+      pairsCount++;
+      totalPairsCount++;
 
-			// Запоминание базового квадрата
-			if (pairsCount == 1)
-			{
-				orthoSquares[pairsCount - 1] = a;
-				totalSquaresWithPairs++;
-			}
+      // Р—Р°РїРѕРјРёРЅР°РЅРёРµ Р±Р°Р·РѕРІРѕРіРѕ РєРІР°РґСЂР°С‚Р°
+      if (pairsCount == 1)
+      {
+        orthoSquares[pairsCount - 1] = a;
+        totalSquaresWithPairs++;
+      }
 
-			// Запоминание квадрата - пары
-			if (pairsCount < OrhoSquaresCacheSize)
-			{
-				orthoSquares[pairsCount] = b;
-			}
+      // Р—Р°РїРѕРјРёРЅР°РЅРёРµ РєРІР°РґСЂР°С‚Р° - РїР°СЂС‹
+      if (pairsCount < OrhoSquaresCacheSize)
+      {
+        orthoSquares[pairsCount] = b;
+      }
 
-			// Вывод заголовка
-			if (pairsCount == 1)
-			{
-				// Вывод информации о первом квадрате пары в виде заголовка
-				cout << "{" << endl;
-				cout << "# ------------------------" << endl;
-				cout << "# Detected pair for the square: " << endl;
-				cout << "# ------------------------" << endl;
-				cout << a;
-				cout << "# ------------------------" << endl;
+      // Р’С‹РІРѕРґ Р·Р°РіРѕР»РѕРІРєР°
+      if (pairsCount == 1)
+      {
+        // Р’С‹РІРѕРґ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РїРµСЂРІРѕРј РєРІР°РґСЂР°С‚Рµ РїР°СЂС‹ РІ РІРёРґРµ Р·Р°РіРѕР»РѕРІРєР°
+        cout << "{" << endl;
+        cout << "# ------------------------" << endl;
+        cout << "# Detected pair for the square: " << endl;
+        cout << "# ------------------------" << endl;
+        cout << a;
+        cout << "# ------------------------" << endl;
 
-				// Вывод информации в файл
-				resultFile.open(resultFileName, std::ios_base::app);
-				resultFile << "{" << endl;
-				resultFile << "# ------------------------" << endl;
-				resultFile << "# Detected pair for the square: " << endl;
-				resultFile << "# ------------------------" << endl;
-				resultFile << a;
-				resultFile << "# ------------------------" << endl;
-				resultFile.close();
-			}
+        // Р’С‹РІРѕРґ РёРЅС„РѕСЂРјР°С†РёРё РІ С„Р°Р№Р»
+        resultFile.open(resultFileName.c_str(), std::ios_base::app);
+        if (resultFile.is_open())
+        {
+          resultFile << "{" << endl;
+          resultFile << "# ------------------------" << endl;
+          resultFile << "# Detected pair for the square: " << endl;
+          resultFile << "# ------------------------" << endl;
+          resultFile << a;
+          resultFile << "# ------------------------" << endl;
+          resultFile.close();
+        }
+        else
+        {
+          std::cout << "Error opening file!";
+        }
+      }
 
-			// Вывод информации о найденной паре
-				// Вывод информации в консоль
-				cout << b << endl;
+      // Р’С‹РІРѕРґ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РЅР°Р№РґРµРЅРЅРѕР№ РїР°СЂРµ
+        // Р’С‹РІРѕРґ РёРЅС„РѕСЂРјР°С†РёРё РІ РєРѕРЅСЃРѕР»СЊ
+        cout << b << endl;
 
-				// Вывод информации в файл
-				resultFile.open(resultFileName, std::ios_base::app);
-				resultFile << b << endl;
-				resultFile.close();
-	}
+        // Р’С‹РІРѕРґ РёРЅС„РѕСЂРјР°С†РёРё РІ С„Р°Р№Р»
+        resultFile.open(resultFileName.c_str(), std::ios_base::app);
+        if (resultFile.is_open())
+        { 
+          resultFile << b << endl;
+          resultFile.close();
+        }
+        else
+        {
+          std::cout << "Error opening file!";
+        }
+
+  }
 }
 
 
-// Проверка взаимной ортогональности набора квадратов, найденного в текущем поиске
+// РџСЂРѕРІРµСЂРєР° РІР·Р°РёРјРЅРѕР№ РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅРѕСЃС‚Рё РЅР°Р±РѕСЂР° РєРІР°РґСЂР°С‚РѕРІ, РЅР°Р№РґРµРЅРЅРѕРіРѕ РІ С‚РµРєСѓС‰РµРј РїРѕРёСЃРєРµ
 void MovePairSearch::CheckMutualOrthogonality()
 {
-	int orthoMetric = Rank*Rank;
-	int maxSquareId;
-	fstream resultFile;
+  int orthoMetric = Rank*Rank;
+  int maxSquareId;
+  ofstream resultFile;
 
-	// Определение верхней границы обрабатываемых квадратов
-	if (pairsCount < OrhoSquaresCacheSize)
-	{
-		maxSquareId = pairsCount;
-	}
-	else
-	{
-		maxSquareId = OrhoSquaresCacheSize - 1;
-	}
+  // РћРїСЂРµРґРµР»РµРЅРёРµ РІРµСЂС…РЅРµР№ РіСЂР°РЅРёС†С‹ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјС‹С… РєРІР°РґСЂР°С‚РѕРІ
+  if (pairsCount < OrhoSquaresCacheSize)
+  {
+    maxSquareId = pairsCount;
+  }
+  else
+  {
+    maxSquareId = OrhoSquaresCacheSize - 1;
+  }
 
-	// Открываем файл с результатами
-	resultFile.open(resultFileName, std::ios_base::app);
+  // РћС‚РєСЂС‹РІР°РµРј С„Р°Р№Р» СЃ СЂРµР·СѓР»СЊС‚Р°С‚Р°РјРё
+  resultFile.open(resultFileName.c_str(), std::ios_base::app);
+  if (!resultFile.is_open()) { cout << "Error opening file!"; return; }
 
-	// Проверка взаимной ортогональности набора квадратов
-	for (int i = 0; i <= maxSquareId; i++)
-	{
-		for (int j = i + 1; j <= maxSquareId; j++)
-		{
-			if (Square::OrthoDegree(orthoSquares[i], orthoSquares[j]) == orthoMetric)
-			{
-				cout << "# Square " << i << " # " << j << endl;
-				resultFile << "# Square " << i << " # " << j << endl;
-			}
-		}
-	}
-	cout << endl;
-	resultFile << endl;
+  // РџСЂРѕРІРµСЂРєР° РІР·Р°РёРјРЅРѕР№ РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅРѕСЃС‚Рё РЅР°Р±РѕСЂР° РєРІР°РґСЂР°С‚РѕРІ
+  for (int i = 0; i <= maxSquareId; i++)
+  {
+    for (int j = i + 1; j <= maxSquareId; j++)
+    {
+      if (Square::OrthoDegree(orthoSquares[i], orthoSquares[j]) == orthoMetric)
+      {
+        cout << "# Square " << i << " # " << j << endl;
+        resultFile << "# Square " << i << " # " << j << endl;
+      }
+    }
+  }
+  cout << endl;
+  resultFile << endl;
 
-	// Выводим общее число найденых ОДЛК
-	cout << "# Pairs found: " << pairsCount << endl;
-	resultFile << "# Pairs found: " << pairsCount << endl;
+  // Р’С‹РІРѕРґРёРј РѕР±С‰РµРµ С‡РёСЃР»Рѕ РЅР°Р№РґРµРЅС‹С… РћР”Р›Рљ
+  cout << "# Pairs found: " << pairsCount << endl;
+  resultFile << "# Pairs found: " << pairsCount << endl;
 
-	// Ставим отметку об окончании секции результатов
-	cout << "}" << endl;
-	resultFile << "}" << endl;
+  // РЎС‚Р°РІРёРј РѕС‚РјРµС‚РєСѓ РѕР± РѕРєРѕРЅС‡Р°РЅРёРё СЃРµРєС†РёРё СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ
+  cout << "}" << endl;
+  resultFile << "}" << endl;
 
-	// Закрываем файл с результатами
-	resultFile.close();
+  // Р—Р°РєСЂС‹РІР°РµРј С„Р°Р№Р» СЃ СЂРµР·СѓР»СЊС‚Р°С‚Р°РјРё
+  resultFile.close();
 }
 
 
 void MovePairSearch::ShowSearchTotals()
 {
-	fstream resultFile;
+  ofstream resultFile;
 
-	// Вывод итогов в консоль
-	cout << "# ------------------------" << endl;
-	cout << "# Total pairs found: " << totalPairsCount << endl;
-	cout << "# Total squares with pairs: " << totalSquaresWithPairs << endl;
-	cout << "# ------------------------" << endl;
+  // Р’С‹РІРѕРґ РёС‚РѕРіРѕРІ РІ РєРѕРЅСЃРѕР»СЊ
+  cout << "# ------------------------" << endl;
+  cout << "# Total pairs found: " << totalPairsCount << endl;
+  cout << "# Total squares with pairs: " << totalSquaresWithPairs << endl;
+  cout << "# ------------------------" << endl;
 
-	// Вывод итогов в файл
-	resultFile.open(resultFileName, std::ios_base::app);
-	resultFile << "# ------------------------" << endl;
-	resultFile << "# Total pairs found: " << totalPairsCount << endl;
-	resultFile << "# Total squares with pairs: " << totalSquaresWithPairs << endl;
-	resultFile << "# Processes " << totalProcessedSquaresLarge << " milliards " << totalProcessedSquaresSmall << " squares" << endl;
-	resultFile << "# ------------------------" << endl;
-	resultFile.close();
+  // Р’С‹РІРѕРґ РёС‚РѕРіРѕРІ РІ С„Р°Р№Р»
+  resultFile.open(resultFileName.c_str(), std::ios_base::app);
+  if (resultFile.is_open())
+  {
+    resultFile << "# ------------------------" << endl;
+    resultFile << "# Total pairs found: " << totalPairsCount << endl;
+    resultFile << "# Total squares with pairs: " << totalSquaresWithPairs << endl;
+    resultFile << "# Processes " << totalProcessedSquaresLarge << " milliards " << totalProcessedSquaresSmall << " squares" << endl;
+    resultFile << "# ------------------------" << endl;
+    resultFile.close();
+  }
+  else cout << "Error opening file!" << endl;
 }

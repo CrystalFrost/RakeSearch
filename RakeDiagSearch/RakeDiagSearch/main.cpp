@@ -1,267 +1,150 @@
 # include <iostream>
 # include <fstream>
 # include <string>
-# include <chrono>
-# include <thread>
-# include <Windows.h>
+#include <sys/stat.h>
 
 # include "MovePairSearch.h"
 # include "PairSearch.h"
 
 using namespace std;
 
-
-// Получение первого файла по заданной маске
-string GetFirstFile(string mask)
-{
-	string result;
-
-	WIN32_FIND_DATA findData;	// Данные, связанные с поиском (можно использовать в FindNextFile)
-	HANDLE findHandle;			// Заголовок поиска
-
-	findHandle = FindFirstFile(mask.c_str(), &findData);
-	
-	if (findHandle != INVALID_HANDLE_VALUE)
-	{
-		result = findData.cFileName;
-	}
-	else
-	{
-		result.clear();
-	}
-
-return result;
+// РџСЂРѕРІРµСЂРєР° СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёСЏ С„Р°Р№Р»Р°
+inline bool file_exists (const std::string& name) {
+  struct stat buffer;   
+  return (stat (name.c_str(), &buffer) == 0); 
 }
 
-
-// Проверка доступности storage
-int PingStorage(string path)
+// Р’С‹РїРѕР»РЅРµРЅРёРµ РІС‹С‡РёСЃР»РµРЅРёР№
+int Compute(string wu_filename, string result_filename)
 {
-	int result = 0;
-	fstream pingFile;
+  string localWorkunit;
+  string localResult;
+  string localCheckpoint;
+  string pathLocalWorkunit;
+  string pathLocalResult;
+  string pathLocalCheckpoint;
 
-	pingFile.open(path, std::ios_base::in, _SH_DENYNO);
-	
-	if (pingFile.is_open())
-	{
-		result = 1;
-	}
+  string initStartFileName;
+  string initResultFileName;
+  string initCheckpointFileName;
+  string initTempCheckpointFileName;
 
-return result;
-}
+  MovePairSearch search;
 
+  {
+    // РџСЂРѕРІРµСЂРєР° РЅР°Р»РёС‡РёСЏ С„Р°Р№Р»Р° Р·Р°РґР°РЅРёСЏ, РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРё, СЂРµР·СѓР»СЊС‚Р°С‚Р°
+    localWorkunit = wu_filename; 
+    localResult = result_filename; 
+    localCheckpoint = "checkpoint_" + wu_filename;
 
-// Выполнение вычислений
-void Compute(string storage, string local)
-{
-	string workunitsDirectory = storage + "workunit\\";
-	string resultsDirectory = storage + "result\\";
-	
-	string workunitsMask = "wu*.txt";
-	string resultsMask = "rs*.txt";
+    pathLocalWorkunit = localWorkunit;
+    pathLocalResult = localResult;
+    pathLocalCheckpoint = localCheckpoint;
 
-	string pingPath = storage + "ping\\ping.txt";
-	string semaphorePath = storage + "semaphore\\semaphore.txt";
-	string storageWorkunitsPath = workunitsDirectory + workunitsMask;
+    // Р РµР·СѓР»СЊС‚Р°С‚ СЃСѓС‰РµСЃС‚РІСѓРµС‚, СѓРґР°Р»РёС‚СЊ СЂРµР·СѓР»СЊС‚Р°С‚ Рё РєРѕРЅС‚СЂРѕР»СЊРЅС‹Рµ С‚РѕС‡РєРё
+    if (file_exists(localResult))
+    {
+      // РћС‚РїСЂР°РІРєР° СЂРµР·СѓР»СЊС‚Р°С‚Р° Рё СѓРґР°Р»РµРЅРёРµ С„Р°Р№Р»Р° СЃ Р·Р°РґР°РЅРёРµРј Рё РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРѕР№
+        // РЈРґР°Р»РµРЅРёРµ С„Р°Р№Р»Р° СЃ Р·Р°РґР°РЅРёРµРј
+        std::cout << "Remove a workunit file: " << localWorkunit << endl;
+        remove(pathLocalWorkunit.c_str());
 
-	string localWorkunitsMask = local + workunitsMask;
-	string localResultsMask = local + resultsMask;
-	string localCheckpointMask = local + "checkpoint.txt";
+        // РЈРґР°Р»РµРЅРёРµ С„Р°Р№Р»Р° СЃ РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРѕР№
+        std::cout << "Remove a checkpoint file: " << localCheckpoint << endl;
+        remove(pathLocalCheckpoint.c_str());
 
-	string localWorkunit;
-	string localResult;
-	string localCheckpoint;
-	string pathLocalWorkunit;
-	string pathLocalResult;
-	string pathLocalCheckpoint;
-	string pathStorageResult;
-	string pathStorageWorkunit;
-	string storageWorkunit;
+        std::cout << "Result removed" << endl;
+        return 0;
+    }
 
-	string initStartFileName;
-	string initResultFileName;
-	string initCheckpointFileName = local + "checkpoint.txt";
-	string initTempCheckpointFileName = local + "checkpoint_new.txt";
+    // Р—Р°РїСѓСЃРє РІС‹С‡РёСЃР»РµРЅРёР№ СЃ РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРё
+    if (file_exists(localCheckpoint) && !file_exists(localResult))
+    {
+      // РџСЂРѕРІРµСЂРєР° РЅР°Р»РёС‡РёСЏ С„Р°Р№Р»Р° СЃ Р·Р°РґР°РЅРёРµРј
+      if (file_exists(localWorkunit))
+      {
+        // Р—Р°РїСѓСЃРєР°РµРј СЂР°СЃС‡С‘С‚
+        initStartFileName  = localWorkunit;
+        initResultFileName = localResult;
+        
+        std::cout << "Start from checkpoint of workunit " << localWorkunit << endl;
 
-	int isStorageResolved;
-	int isResultSent;
+        search.InitializeMoveSearch(initStartFileName, initResultFileName, 
+                      initCheckpointFileName, initTempCheckpointFileName);
+        search.StartMoveSearch();
+      }
+      else
+      {
+        std::cout << "Error: delected a checkpoint file " << localCheckpoint << " without workunit file!" << endl;
+        return -1;
+      }
+    }
 
-	fstream semaphoreFile;
-	WIN32_FIND_DATA fileListData;
-	HANDLE fileListHandle;
+    // Р—Р°РїСѓСЃРє РІС‹С‡РёСЃР»РµРЅРёР№ СЃ С„Р°Р№Р»Р° Р·Р°РґР°РЅРёСЏ
+    if (!file_exists(localCheckpoint) && !file_exists(localResult) 
+                                    && file_exists(localWorkunit))
+    {
+      // Р—Р°РїСѓСЃРє РІС‹С‡РёСЃР»РµРЅРёР№ СЃ С„Р°Р№Р»Р° Р·Р°РґР°РЅРёСЏ, РїСЂРёСЃСѓС‚СЃС‚РІСѓСЋС‰РµРіРѕ Р±РµР· С„Р°Р№Р»РѕРІ 
+      // РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРё Рё СЂРµР·СѓР»СЊС‚Р°С‚Р°
+      initStartFileName  = localWorkunit;
+      initResultFileName = localResult;
+      initCheckpointFileName = "checkpoint_" + localWorkunit;      
+      initTempCheckpointFileName = "checkpoint_new_" + localWorkunit;
 
-	MovePairSearch search;
+      std::cout << "Start from workunit file " << localWorkunit << endl;
+      search.InitializeMoveSearch(initStartFileName, initResultFileName, 
+                      initCheckpointFileName, initTempCheckpointFileName);
+      search.StartMoveSearch();
+    }
+  }
 
-	for ( ; ; )
-	{
-		// Проверка наличия файла задания, контрольной точки, результата
-		localWorkunit = GetFirstFile(localWorkunitsMask);
-		localResult = GetFirstFile(localResultsMask);
-		localCheckpoint = GetFirstFile(localCheckpointMask);
-
-		pathLocalWorkunit = local + localWorkunit;
-		pathLocalResult = local + localResult;
-		pathLocalCheckpoint = local + localCheckpoint;
-		pathStorageResult = resultsDirectory + localResult;
-
-		// Отправка результатов
-		if (!localResult.empty())
-		{
-			// Отправка результата и удаление файла с заданием и контрольной точкой
-				// Удаление файла с заданием
-				std::cout << "Remove a workunit file: " << localWorkunit << endl;
-				remove(pathLocalWorkunit.c_str());
-
-				// Удаление файла с контрольной точкой
-				std::cout << "Remove a checkpoint file: " << localCheckpoint << endl;
-				remove(pathLocalCheckpoint.c_str());
-
-				// Отправка результата
-					// Сброс флагов
-					isResultSent = 0;
-					isStorageResolved = 0;
-					// Отправление результата
-					do
-					{
-						// Предпринимаем попытку отправки
-							//  Проверяем доступность хранилища
-							isStorageResolved = PingStorage(pingPath);
-							// Отправлям файл
-							if (isStorageResolved)
-							{
-								// Переносим файл в доступный сетевой каталог
-								std::cout << "Move result " << localResult << " to storage on " << resultsDirectory << endl;
-								rename(pathLocalResult.c_str(), pathStorageResult.c_str());
-								isResultSent = 1;
-							}
-							else
-							{
-								cout << "Storage inaccessble, result " << localResult << " cannot be sent. Waiting 5 minutes..." << endl;
-								std::this_thread::sleep_for(std::chrono::minutes(5));
-							}
-					}
-					while (!isResultSent);
-		}
-
-		// Запуск вычислений с контрольной точки
-		if (!localCheckpoint.empty() && localResult.empty())
-		{
-			// Проверка наличия файла с заданием
-			if (!localWorkunit.empty())
-			{
-				// Запускаем расчёт
-				initStartFileName = local + localWorkunit;
-				initResultFileName = local + "rs" + localWorkunit.substr(2, localWorkunit.length() - 2);
-				
-				std::cout << "Start from checkpoint of workunit " << localWorkunit << endl;
-
-				search.InitializeMoveSearch(initStartFileName, initResultFileName, initCheckpointFileName, initTempCheckpointFileName);
-				search.StartMoveSearch();
-			}
-			else
-			{
-				std::cout << "Error: delected a checkpoint file " << localCheckpoint << " without workunit file!" << endl;
-			}
-		}
-
-		// Запуск вычислений с файла задания
-		if (localCheckpoint.empty() && localResult.empty() && !localWorkunit.empty())
-		{
-			// Запуск вычислений с файла задания, присутствующего без файлов контрольной точки и результата
-			initStartFileName = local + localWorkunit;
-			initResultFileName = local + "rs" + localWorkunit.substr(2, localWorkunit.length() - 2);
-			
-			std::cout << "Start from workunit file " << localWorkunit << endl;
-
-			search.InitializeMoveSearch(initStartFileName, initResultFileName, initCheckpointFileName, initTempCheckpointFileName);
-			search.StartMoveSearch();
-		}
-
-		// Запрос нового задания
-		if (localCheckpoint.empty() && localResult.empty() && localWorkunit.empty())
-		{
-			// Получение нового задания
-				//  Проверяем доступность хранилища
-				while(!PingStorage(pingPath))
-				{
-					cout << "Storage inaccessble, new workunits cannot be received. Waiting 5 minutes..." << endl;
-					std::this_thread::sleep_for(std::chrono::minutes(5));
-				}
-
-				// Захват семафора
-				semaphoreFile.open(semaphorePath, std::ios_base::app, _SH_DENYRW);
-				while (!semaphoreFile.is_open())
-				{
-					std::this_thread::sleep_for(std::chrono::seconds(2));
-					semaphoreFile.open(semaphorePath, std::ios_base::app, _SH_DENYRW);
-				}
-
-				// Поиск файла с заданием
-				fileListHandle = FindFirstFile(storageWorkunitsPath.c_str(), &fileListData);
-				if (fileListHandle != INVALID_HANDLE_VALUE)
-				{
-					storageWorkunit = fileListData.cFileName;
-					pathStorageWorkunit = workunitsDirectory + storageWorkunit;
-					pathLocalWorkunit = local + storageWorkunit;
-
-					cout << "Catch a WU: " << storageWorkunit << endl;
-					rename(pathStorageWorkunit.c_str(), pathLocalWorkunit.c_str());
-				}
-				else
-				{
-					cout << "Could not find workunits by '" << workunitsMask << "' mask" << endl;
-					break;
-				}
-
-				semaphoreFile.close();
-		}
-	}
+  return 0;
 }
 
 
 int main(int argumentsCount, char* argumentsValues[])
 {
-	string storage;
-	string local;
+  string wu_filename;
+  string result_filename;
 
-	if (argumentsCount == 3)
-	{
-		storage = argumentsValues[1];
-		local = argumentsValues[2];
+  if (argumentsCount == 3)
+  {
+    wu_filename = argumentsValues[1];
+    result_filename = argumentsValues[2];
+    Compute(wu_filename, result_filename);
+  }
+  else
+  {
+    std::cout << "Please, specify WU filename and result filename." << endl << endl;
+    return -1;
+  }
 
-		Compute(storage, local);
-	}
-	else
-	{
-		std::cout << "Please, specify: 1) storage path; 2) local path." << endl << endl;
-	}
+  //cout << "Press any key to exit ... " << endl;
+  //cin.get();
 
-	cout << "Press any key to exit ... " << endl;
-	cin.get();
-
-	return 0;
+  return 0;
 }
 
 /*
 Sample of Pair search
 
-	int aMatrix[9][9] =
-	{
-		{0, 1, 2, 3, 4, 5, 6, 7, 8},
-		{4, 2, 7, 6, 8, 1, 3, 5, 0},
-		{3, 5, 1, 0, 7, 8, 4, 6, 2},
-		{6, 3, 8, 4, 1, 7, 0, 2, 5},
-		{5, 6, 0, 7, 3, 2, 8, 4, 1},
-		{7, 8, 4, 1, 5, 6, 2, 0, 3},
-		{8, 7, 6, 2, 0, 3, 5, 1, 4},
-		{1, 0, 3, 5, 2, 4, 7, 8, 6},
-		{2, 4, 5, 8, 6, 0, 1, 3, 7}
-	};
+  int aMatrix[9][9] =
+  {
+    {0, 1, 2, 3, 4, 5, 6, 7, 8},
+    {4, 2, 7, 6, 8, 1, 3, 5, 0},
+    {3, 5, 1, 0, 7, 8, 4, 6, 2},
+    {6, 3, 8, 4, 1, 7, 0, 2, 5},
+    {5, 6, 0, 7, 3, 2, 8, 4, 1},
+    {7, 8, 4, 1, 5, 6, 2, 0, 3},
+    {8, 7, 6, 2, 0, 3, 5, 1, 4},
+    {1, 0, 3, 5, 2, 4, 7, 8, 6},
+    {2, 4, 5, 8, 6, 0, 1, 3, 7}
+  };
 
-	Square a(aMatrix);
-	PairSearch search;
+  Square a(aMatrix);
+  PairSearch search;
 
-	search.Initialize("start_parameters.txt", "result.txt", "checkpoint.txt", "checkpoint_new.txt");
-	search.OnSquareGenerated(a);
+  search.Initialize("start_parameters.txt", "result.txt", "checkpoint.txt", "checkpoint_new.txt");
+  search.OnSquareGenerated(a);
 
 */

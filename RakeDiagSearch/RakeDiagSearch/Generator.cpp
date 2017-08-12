@@ -1,614 +1,615 @@
-// Генератор Диагональных латинских квадратов
+// Р“РµРЅРµСЂР°С‚РѕСЂ Р”РёР°РіРѕРЅР°Р»СЊРЅС‹С… Р»Р°С‚РёРЅСЃРєРёС… РєРІР°РґСЂР°С‚РѕРІ
 
 # include "Generator.h"
 
 using namespace std;
 
-// Конструктор по умолчанию
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 Generator::Generator()
 {
-	// Сброс настроек
-	Reset();
+  // РЎР±СЂРѕСЃ РЅР°СЃС‚СЂРѕРµРє
+  Reset();
 
-	// Задание текстовых констант
-	generatorStateHeader = "# Generation of DLS status";
+  // Р—Р°РґР°РЅРёРµ С‚РµРєСЃС‚РѕРІС‹С… РєРѕРЅСЃС‚Р°РЅС‚
+  generatorStateHeader = "# Generation of DLS status";
 }
 
 
-// Конструктор копирования
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ
 Generator::Generator(Generator& source)
 {
-	CopyState(source);
+  CopyState(source);
 }
 
 
-// Сброс всех значений внутренних структур
+// РЎР±СЂРѕСЃ РІСЃРµС… Р·РЅР°С‡РµРЅРёР№ РІРЅСѓС‚СЂРµРЅРЅРёС… СЃС‚СЂСѓРєС‚СѓСЂ
 void Generator::Reset()
 {
-	// Сброс внутренних значений квадрата
-	newSquare.Reset();
+  // РЎР±СЂРѕСЃ РІРЅСѓС‚СЂРµРЅРЅРёС… Р·РЅР°С‡РµРЅРёР№ РєРІР°РґСЂР°С‚Р°
+  newSquare.Reset();
 
-	// Сброс значений структур генерации квадратов
-		// Сброс значений, соответствующих ключевой клетке
-		keyRowId = Square::Empty;
-		keyColumnId = Square::Empty;
-		keyValue = Square::Empty;
+  // РЎР±СЂРѕСЃ Р·РЅР°С‡РµРЅРёР№ СЃС‚СЂСѓРєС‚СѓСЂ РіРµРЅРµСЂР°С†РёРё РєРІР°РґСЂР°С‚РѕРІ
+    // РЎР±СЂРѕСЃ Р·РЅР°С‡РµРЅРёР№, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёС… РєР»СЋС‡РµРІРѕР№ РєР»РµС‚РєРµ
+    keyRowId = Square::Empty;
+    keyColumnId = Square::Empty;
+    keyValue = Square::Empty;
 
-		// Сброс значений, связанных с путём заполнения клеток
-		for (int i = 0; i < MaxCellsInPath; i++)
-		{
-			path[i][0] = Square::Empty;
-			path[i][1] = Square::Empty;
-		}
+    // РЎР±СЂРѕСЃ Р·РЅР°С‡РµРЅРёР№, СЃРІСЏР·Р°РЅРЅС‹С… СЃ РїСѓС‚С‘Рј Р·Р°РїРѕР»РЅРµРЅРёСЏ РєР»РµС‚РѕРє
+    for (int i = 0; i < MaxCellsInPath; i++)
+    {
+      path[i][0] = Square::Empty;
+      path[i][1] = Square::Empty;
+    }
 
-		// Сброс значений в векторах использования элементов на диагонали
-		for (int i = 0; i < Rank; i++)
-		{
-			primary[i] = Free;
-			secondary[i] = Free;
-		}
+    // РЎР±СЂРѕСЃ Р·РЅР°С‡РµРЅРёР№ РІ РІРµРєС‚РѕСЂР°С… РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ СЌР»РµРјРµРЅС‚РѕРІ РЅР° РґРёР°РіРѕРЅР°Р»Рё
+    for (int i = 0; i < Rank; i++)
+    {
+      primary[i] = Free;
+      secondary[i] = Free;
+    }
 
-		// Сброс значений в матрицах использования элементов в столбцах и строках
-		for (int i = 0; i < Rank; i++)
-		{
-			for (int j = 0; j < Rank; j++)
-			{
-				columns[i][j] = Free;
-				rows[i][j] = Free;
-			}
-		}
+    // РЎР±СЂРѕСЃ Р·РЅР°С‡РµРЅРёР№ РІ РјР°С‚СЂРёС†Р°С… РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ СЌР»РµРјРµРЅС‚РѕРІ РІ СЃС‚РѕР»Р±С†Р°С… Рё СЃС‚СЂРѕРєР°С…
+    for (int i = 0; i < Rank; i++)
+    {
+      for (int j = 0; j < Rank; j++)
+      {
+        columns[i][j] = Free;
+        rows[i][j] = Free;
+      }
+    }
 
-		// Сброс значений в кубе истории использования значений в клетках
-		for (int i = 0; i < Rank; i++)
-		{
-			for (int j = 0; j < Rank; j++)
-			{
-				for (int h = 0; h < Rank; h++)
-				{
-					cellsHistory[i][j][h] = Free;
-				}
-			}
-		}
+    // РЎР±СЂРѕСЃ Р·РЅР°С‡РµРЅРёР№ РІ РєСѓР±Рµ РёСЃС‚РѕСЂРёРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ Р·РЅР°С‡РµРЅРёР№ РІ РєР»РµС‚РєР°С…
+    for (int i = 0; i < Rank; i++)
+    {
+      for (int j = 0; j < Rank; j++)
+      {
+        for (int h = 0; h < Rank; h++)
+        {
+          cellsHistory[i][j][h] = Free;
+        }
+      }
+    }
 
-		// Сброс координат обрабатываемой клетки
-		rowId = Square::Empty;
-		columnId = Square::Empty;
+    // РЎР±СЂРѕСЃ РєРѕРѕСЂРґРёРЅР°С‚ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјРѕР№ РєР»РµС‚РєРё
+    rowId = Square::Empty;
+    columnId = Square::Empty;
 
-		// Сброс названий файлов
-		checkpointFileName.clear();
-		tempCheckpointFileName.clear();
-		resultFileName.clear();
+    // РЎР±СЂРѕСЃ РЅР°Р·РІР°РЅРёР№ С„Р°Р№Р»РѕРІ
+    checkpointFileName.clear();
+    tempCheckpointFileName.clear();
+    resultFileName.clear();
 
-		// Сброс числа сгенерированных квадратов
-		squaresCount = 0;
+    // РЎР±СЂРѕСЃ С‡РёСЃР»Р° СЃРіРµРЅРµСЂРёСЂРѕРІР°РЅРЅС‹С… РєРІР°РґСЂР°С‚РѕРІ
+    squaresCount = 0;
 
-		// Сброс флага инициализированности
-		isInitialized = No;
+    // РЎР±СЂРѕСЃ С„Р»Р°РіР° РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅРѕСЃС‚Рё
+    isInitialized = No;
 }
 
 
-// Инициализация генератора
+// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РіРµРЅРµСЂР°С‚РѕСЂР°
 void Generator::Initialize(string start, string result, string checkpoint, string temp)
 {
-	fstream startFile;
-	fstream checkpointFile;
+  fstream startFile;
+  fstream checkpointFile;
 
-	// Сбрасываем значения внутренних структур
-	Reset();
+  // РЎР±СЂР°СЃС‹РІР°РµРј Р·РЅР°С‡РµРЅРёСЏ РІРЅСѓС‚СЂРµРЅРЅРёС… СЃС‚СЂСѓРєС‚СѓСЂ
+  Reset();
 
-	// Запоминаем имена файлов конфигурации, контрольных точек и результатов
-	startParametersFileName = start;
-	checkpointFileName = checkpoint;
-	resultFileName = result;
-	tempCheckpointFileName = temp;
+  // Р—Р°РїРѕРјРёРЅР°РµРј РёРјРµРЅР° С„Р°Р№Р»РѕРІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё, РєРѕРЅС‚СЂРѕР»СЊРЅС‹С… С‚РѕС‡РµРє Рё СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ
+  startParametersFileName = start;
+  checkpointFileName = checkpoint;
+  resultFileName = result;
+  tempCheckpointFileName = temp;
 
-	// Считываем настройки
-	startFile.open(startParametersFileName, std::ios_base::in);
-	checkpointFile.open(checkpointFileName, std::ios_base::in);
+  // РЎС‡РёС‚С‹РІР°РµРј РЅР°СЃС‚СЂРѕР№РєРё
+  startFile.open(startParametersFileName.c_str(), std::ios_base::in);
+  checkpointFile.open(checkpointFileName.c_str(), std::ios_base::in);
 
-	if (checkpointFile.is_open())
-	{
-		// Считываем данные из файла контрольной точки
-		Read(checkpointFile);
-	}
-	else
-	{
-		// Считываем данные из файла параметров запуска
-		if (startFile.is_open())
-		{
-			Read(startFile);
-		}
-	}
+  if (checkpointFile.is_open())
+  {
+    // РЎС‡РёС‚С‹РІР°РµРј РґР°РЅРЅС‹Рµ РёР· С„Р°Р№Р»Р° РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРё
+    Read(checkpointFile);
+  }
+  else
+  {
+    // РЎС‡РёС‚С‹РІР°РµРј РґР°РЅРЅС‹Рµ РёР· С„Р°Р№Р»Р° РїР°СЂР°РјРµС‚СЂРѕРІ Р·Р°РїСѓСЃРєР°
+    if (startFile.is_open())
+    {
+      Read(startFile);
+    }
+  }
 
-	startFile.close();
-	checkpointFile.close();
+  startFile.close();
+  checkpointFile.close();
 }
 
-// Оператор записи состояния генератора
+// РћРїРµСЂР°С‚РѕСЂ Р·Р°РїРёСЃРё СЃРѕСЃС‚РѕСЏРЅРёСЏ РіРµРЅРµСЂР°С‚РѕСЂР°
 std::ostream& operator << (std::ostream& os, Generator& value)
 {
-	value.Write(os);
+  value.Write(os);
 
 return os;
 }
 
 
-// Оператор считывания состояния генератора
+// РћРїРµСЂР°С‚РѕСЂ СЃС‡РёС‚С‹РІР°РЅРёСЏ СЃРѕСЃС‚РѕСЏРЅРёСЏ РіРµРЅРµСЂР°С‚РѕСЂР°
 std::istream& operator >> (std::istream& is, Generator& value)
 {
-	value.Read(is);
+  value.Read(is);
 
 return is;
 }
 
 
-// Считывание состояние генератора из потока
+// РЎС‡РёС‚С‹РІР°РЅРёРµ СЃРѕСЃС‚РѕСЏРЅРёРµ РіРµРЅРµСЂР°С‚РѕСЂР° РёР· РїРѕС‚РѕРєР°
 void Generator::Read(std::istream& is)
 {
-	int rankToVerify;
-	int result = Yes;
-	string marker;
+  int rankToVerify;
+  int result = Yes;
+  string marker;
 
-	// Сбрасываем флаг инициализированности
-	isInitialized = No;
+  // РЎР±СЂР°СЃС‹РІР°РµРј С„Р»Р°Рі РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅРѕСЃС‚Рё
+  isInitialized = No;
 
-	// Поиск заголовка
-	do
-	{
-		std::getline(is, marker);
-	}
-	while (marker != generatorStateHeader);
+  // РџРѕРёСЃРє Р·Р°РіРѕР»РѕРІРєР°
+  do
+  {
+    std::getline(is, marker);
+  }
+  while (marker != generatorStateHeader);
 
-	// Считывание из потока ранга квадрата
-	is >> rankToVerify;
+  // РЎС‡РёС‚С‹РІР°РЅРёРµ РёР· РїРѕС‚РѕРєР° СЂР°РЅРіР° РєРІР°РґСЂР°С‚Р°
+  is >> rankToVerify;
 
-	// Считывание данных поиска нужного нам ранга
-	if (rankToVerify == Square::Rank)
-	{
-		// Считывание из потока квадрата
-		is >> newSquare;
+  // РЎС‡РёС‚С‹РІР°РЅРёРµ РґР°РЅРЅС‹С… РїРѕРёСЃРєР° РЅСѓР¶РЅРѕРіРѕ РЅР°Рј СЂР°РЅРіР°
+  if (rankToVerify == Square::Rank)
+  {
+    // РЎС‡РёС‚С‹РІР°РЅРёРµ РёР· РїРѕС‚РѕРєР° РєРІР°РґСЂР°С‚Р°
+    is >> newSquare;
 
-		// Считывание числа клеток в пути обхода
-		is >> cellsInPath;
+    // РЎС‡РёС‚С‹РІР°РЅРёРµ С‡РёСЃР»Р° РєР»РµС‚РѕРє РІ РїСѓС‚Рё РѕР±С…РѕРґР°
+    is >> cellsInPath;
 
-		// Считывание из потока пути обхода клеток
-		for (int i = 0; i < cellsInPath; i++)
-		{
-			is >> path[i][0];
-			is >> path[i][1];
-		}
+    // РЎС‡РёС‚С‹РІР°РЅРёРµ РёР· РїРѕС‚РѕРєР° РїСѓС‚Рё РѕР±С…РѕРґР° РєР»РµС‚РѕРє
+    for (int i = 0; i < cellsInPath; i++)
+    {
+      is >> path[i][0];
+      is >> path[i][1];
+    }
 
-		// Считывание из потока информации о ключевой клетке
-		is >> keyRowId;
-		is >> keyColumnId;
-		is >> keyValue;
+    // РЎС‡РёС‚С‹РІР°РЅРёРµ РёР· РїРѕС‚РѕРєР° РёРЅС„РѕСЂРјР°С†РёРё Рѕ РєР»СЋС‡РµРІРѕР№ РєР»РµС‚РєРµ
+    is >> keyRowId;
+    is >> keyColumnId;
+    is >> keyValue;
 
-		// Считывание информации об обрабатываемой клетке
-		is >> rowId;
-		is >> columnId;
-		is >> cellId;
+    // РЎС‡РёС‚С‹РІР°РЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё РѕР± РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјРѕР№ РєР»РµС‚РєРµ
+    is >> rowId;
+    is >> columnId;
+    is >> cellId;
 
-		// Считывание из потока информации о задействованных значениях и истории значений
-			// Считывание информации о значениях на главной диагонали
-			for (int i = 0; i < Rank; i++)
-			{
-				is >> primary[i];
-			}
+    // РЎС‡РёС‚С‹РІР°РЅРёРµ РёР· РїРѕС‚РѕРєР° РёРЅС„РѕСЂРјР°С†РёРё Рѕ Р·Р°РґРµР№СЃС‚РІРѕРІР°РЅРЅС‹С… Р·РЅР°С‡РµРЅРёСЏС… Рё РёСЃС‚РѕСЂРёРё Р·РЅР°С‡РµРЅРёР№
+      // РЎС‡РёС‚С‹РІР°РЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё Рѕ Р·РЅР°С‡РµРЅРёСЏС… РЅР° РіР»Р°РІРЅРѕР№ РґРёР°РіРѕРЅР°Р»Рё
+      for (int i = 0; i < Rank; i++)
+      {
+        is >> primary[i];
+      }
 
-			// Считывание информации о значениях на побочной диагонали
-			for (int i = 0; i < Rank; i++)
-			{
-				is >> secondary[i];
-			}
+      // РЎС‡РёС‚С‹РІР°РЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё Рѕ Р·РЅР°С‡РµРЅРёСЏС… РЅР° РїРѕР±РѕС‡РЅРѕР№ РґРёР°РіРѕРЅР°Р»Рё
+      for (int i = 0; i < Rank; i++)
+      {
+        is >> secondary[i];
+      }
 
-			// Считывание информации о значениях в строках
-			for (int i = 0; i < Rank; i++)
-			{
-				for (int j = 0; j < Rank; j++)
-				{
-					is >> rows[i][j];
-				}
-			}
+      // РЎС‡РёС‚С‹РІР°РЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё Рѕ Р·РЅР°С‡РµРЅРёСЏС… РІ СЃС‚СЂРѕРєР°С…
+      for (int i = 0; i < Rank; i++)
+      {
+        for (int j = 0; j < Rank; j++)
+        {
+          is >> rows[i][j];
+        }
+      }
 
-			// Считывание информации о значениях в столбцах
-			for (int i = 0; i < Rank; i++)
-			{
-				for (int j = 0; j < Rank; j++)
-				{
-					is >> columns[i][j];
-				}
-			}
+      // РЎС‡РёС‚С‹РІР°РЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё Рѕ Р·РЅР°С‡РµРЅРёСЏС… РІ СЃС‚РѕР»Р±С†Р°С…
+      for (int i = 0; i < Rank; i++)
+      {
+        for (int j = 0; j < Rank; j++)
+        {
+          is >> columns[i][j];
+        }
+      }
 
-			// Считывание информации об истории значений в клетках квадрата
-			for (int h = 0; h < Rank; h++)
-			{
-				for (int i = 0; i < Rank; i++)
-				{
-					for (int j = 0; j < Rank; j++)
-					{
-						is >> cellsHistory[i][j][h];
-					}
-				}	
-			}	
+      // РЎС‡РёС‚С‹РІР°РЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё РѕР± РёСЃС‚РѕСЂРёРё Р·РЅР°С‡РµРЅРёР№ РІ РєР»РµС‚РєР°С… РєРІР°РґСЂР°С‚Р°
+      for (int h = 0; h < Rank; h++)
+      {
+        for (int i = 0; i < Rank; i++)
+        {
+          for (int j = 0; j < Rank; j++)
+          {
+            is >> cellsHistory[i][j][h];
+          }
+        }  
+      }  
 
-		// Считываем число сгенерированных квадратов
-		is >> squaresCount;
+    // РЎС‡РёС‚С‹РІР°РµРј С‡РёСЃР»Рѕ СЃРіРµРЅРµСЂРёСЂРѕРІР°РЅРЅС‹С… РєРІР°РґСЂР°С‚РѕРІ
+    is >> squaresCount;
 
-		// Выставляем флаг инициализированности
-		isInitialized = Yes;
-	}
+    // Р’С‹СЃС‚Р°РІР»СЏРµРј С„Р»Р°Рі РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅРѕСЃС‚Рё
+    isInitialized = Yes;
+  }
 }
 
 
-// Запись состояния генератора в поток
+// Р—Р°РїРёСЃСЊ СЃРѕСЃС‚РѕСЏРЅРёСЏ РіРµРЅРµСЂР°С‚РѕСЂР° РІ РїРѕС‚РѕРє
 void Generator::Write(std::ostream& os)
 {
-	// Запись заголовка
-	os << generatorStateHeader << endl << endl;
+  // Р—Р°РїРёСЃСЊ Р·Р°РіРѕР»РѕРІРєР°
+  os << generatorStateHeader << endl << endl;
 
-	// Запись в поток ранга квадрата
-	os << Square::Rank << endl;
+  // Р—Р°РїРёСЃСЊ РІ РїРѕС‚РѕРє СЂР°РЅРіР° РєРІР°РґСЂР°С‚Р°
+  os << Square::Rank << endl;
 
-	// Запись в поток квадрата
-	os << newSquare;
+  // Р—Р°РїРёСЃСЊ РІ РїРѕС‚РѕРє РєРІР°РґСЂР°С‚Р°
+  os << newSquare;
 
-	// Запись числа клеток в пути обхода
-	os << cellsInPath << endl;
-	os << endl;
-	
-	// Запись в поток пути обхода клеток
-	for (int i = 0; i < cellsInPath; i++)
-	{
-		os << path[i][0] << " ";
-		os << path[i][1] << " ";
-		os << endl;
-	}
-	os << endl;
+  // Р—Р°РїРёСЃСЊ С‡РёСЃР»Р° РєР»РµС‚РѕРє РІ РїСѓС‚Рё РѕР±С…РѕРґР°
+  os << cellsInPath << endl;
+  os << endl;
+  
+  // Р—Р°РїРёСЃСЊ РІ РїРѕС‚РѕРє РїСѓС‚Рё РѕР±С…РѕРґР° РєР»РµС‚РѕРє
+  for (int i = 0; i < cellsInPath; i++)
+  {
+    os << path[i][0] << " ";
+    os << path[i][1] << " ";
+    os << endl;
+  }
+  os << endl;
 
-	// Запись в поток информации о ключевой клетке
-	os << keyRowId << " " << keyColumnId << " " << keyValue << endl;
+  // Р—Р°РїРёСЃСЊ РІ РїРѕС‚РѕРє РёРЅС„РѕСЂРјР°С†РёРё Рѕ РєР»СЋС‡РµРІРѕР№ РєР»РµС‚РєРµ
+  os << keyRowId << " " << keyColumnId << " " << keyValue << endl;
 
-	// Запись информации о текущей клетке
-	os << rowId << " " << columnId << " " << cellId  << endl;
+  // Р—Р°РїРёСЃСЊ РёРЅС„РѕСЂРјР°С†РёРё Рѕ С‚РµРєСѓС‰РµР№ РєР»РµС‚РєРµ
+  os << rowId << " " << columnId << " " << cellId  << endl;
 
-	// Записываем пустую строку для удобства
-	os << endl;
+  // Р—Р°РїРёСЃС‹РІР°РµРј РїСѓСЃС‚СѓСЋ СЃС‚СЂРѕРєСѓ РґР»СЏ СѓРґРѕР±СЃС‚РІР°
+  os << endl;
 
-	// Запись информации о задействованных значениях и истории значений
-		// Запись информации о значениях на главной диагонали
-		for (int i = 0; i < Rank; i++)
-		{
-			os << primary[i] << " ";
-		}
-		os << endl;
+  // Р—Р°РїРёСЃСЊ РёРЅС„РѕСЂРјР°С†РёРё Рѕ Р·Р°РґРµР№СЃС‚РІРѕРІР°РЅРЅС‹С… Р·РЅР°С‡РµРЅРёСЏС… Рё РёСЃС‚РѕСЂРёРё Р·РЅР°С‡РµРЅРёР№
+    // Р—Р°РїРёСЃСЊ РёРЅС„РѕСЂРјР°С†РёРё Рѕ Р·РЅР°С‡РµРЅРёСЏС… РЅР° РіР»Р°РІРЅРѕР№ РґРёР°РіРѕРЅР°Р»Рё
+    for (int i = 0; i < Rank; i++)
+    {
+      os << primary[i] << " ";
+    }
+    os << endl;
 
-		// Запись информации о значениях на побочной диагонали
-		for (int i = 0; i < Rank; i++)
-		{
-			os << secondary[i] << " ";
-		}
-		os << endl;
+    // Р—Р°РїРёСЃСЊ РёРЅС„РѕСЂРјР°С†РёРё Рѕ Р·РЅР°С‡РµРЅРёСЏС… РЅР° РїРѕР±РѕС‡РЅРѕР№ РґРёР°РіРѕРЅР°Р»Рё
+    for (int i = 0; i < Rank; i++)
+    {
+      os << secondary[i] << " ";
+    }
+    os << endl;
 
-		// Дополнительная пустая строка
-		os << endl;
+    // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РїСѓСЃС‚Р°СЏ СЃС‚СЂРѕРєР°
+    os << endl;
 
-		// Запись информации о значениях в строках
-		for (int i = 0; i < Rank; i++)
-		{
-			for (int j = 0; j < Rank; j++)
-			{
-				os << rows[i][j] << " ";
-			}
-			os << endl;
-		}
-		os << endl;
+    // Р—Р°РїРёСЃСЊ РёРЅС„РѕСЂРјР°С†РёРё Рѕ Р·РЅР°С‡РµРЅРёСЏС… РІ СЃС‚СЂРѕРєР°С…
+    for (int i = 0; i < Rank; i++)
+    {
+      for (int j = 0; j < Rank; j++)
+      {
+        os << rows[i][j] << " ";
+      }
+      os << endl;
+    }
+    os << endl;
 
-		// Запись информации о значениях в столбцах
-		for (int i = 0; i < Rank; i++)
-		{
-			for (int j = 0; j < Rank; j++)
-			{
-				os << columns[i][j] << " ";
-			}
-			os << endl;
-		}
-		os << endl;
+    // Р—Р°РїРёСЃСЊ РёРЅС„РѕСЂРјР°С†РёРё Рѕ Р·РЅР°С‡РµРЅРёСЏС… РІ СЃС‚РѕР»Р±С†Р°С…
+    for (int i = 0; i < Rank; i++)
+    {
+      for (int j = 0; j < Rank; j++)
+      {
+        os << columns[i][j] << " ";
+      }
+      os << endl;
+    }
+    os << endl;
 
-		// Запись информации об истории значений в клетках квадрата
-		for (int h = 0; h < Rank; h++)
-		{
-			for (int i = 0; i < Rank; i++)
-			{
-				for (int j = 0; j < Rank; j++)
-				{
-					os << cellsHistory[i][j][h] << " ";
-				}
-				os << endl;
-			}
-			os << endl;
-		}
-		os << endl;
+    // Р—Р°РїРёСЃСЊ РёРЅС„РѕСЂРјР°С†РёРё РѕР± РёСЃС‚РѕСЂРёРё Р·РЅР°С‡РµРЅРёР№ РІ РєР»РµС‚РєР°С… РєРІР°РґСЂР°С‚Р°
+    for (int h = 0; h < Rank; h++)
+    {
+      for (int i = 0; i < Rank; i++)
+      {
+        for (int j = 0; j < Rank; j++)
+        {
+          os << cellsHistory[i][j][h] << " ";
+        }
+        os << endl;
+      }
+      os << endl;
+    }
+    os << endl;
 
-	// Запись в поток информации о числе сгенерированных квадратов
-	os << squaresCount << endl;
+  // Р—Р°РїРёСЃСЊ РІ РїРѕС‚РѕРє РёРЅС„РѕСЂРјР°С†РёРё Рѕ С‡РёСЃР»Рµ СЃРіРµРЅРµСЂРёСЂРѕРІР°РЅРЅС‹С… РєРІР°РґСЂР°С‚РѕРІ
+  os << squaresCount << endl;
 }
 
 
-// Оператор присваивания
+// РћРїРµСЂР°С‚РѕСЂ РїСЂРёСЃРІР°РёРІР°РЅРёСЏ
 Generator& Generator::operator = (Generator& value)
 {
-	CopyState(value);
+  CopyState(value);
 
 return *this;
 }
 
 
-// Копирование состояния с заданного объекта
+// РљРѕРїРёСЂРѕРІР°РЅРёРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ СЃ Р·Р°РґР°РЅРЅРѕРіРѕ РѕР±СЉРµРєС‚Р°
 void Generator::CopyState(Generator& source)
 {
-	// Копируем переменные связанные с путём заполнения ячеек
-	for (int i = 0; i < cellsInPath; i++)
-	{
-		path[i][0] = source.path[i][0];
-		path[i][1] = source.path[i][1];
-	}
+  // РљРѕРїРёСЂСѓРµРј РїРµСЂРµРјРµРЅРЅС‹Рµ СЃРІСЏР·Р°РЅРЅС‹Рµ СЃ РїСѓС‚С‘Рј Р·Р°РїРѕР»РЅРµРЅРёСЏ СЏС‡РµРµРє
+  for (int i = 0; i < cellsInPath; i++)
+  {
+    path[i][0] = source.path[i][0];
+    path[i][1] = source.path[i][1];
+  }
 
-	keyRowId = source.keyRowId;
-	keyColumnId = source.keyColumnId;
-	keyValue = source.keyValue;
+  keyRowId = source.keyRowId;
+  keyColumnId = source.keyColumnId;
+  keyValue = source.keyValue;
 
-	// Копируем массивы флагов использования значений
-	for (int i = 0; i < Rank; i++)
-	{
-		primary[i] = source.primary[i];
-		secondary[i] = source.secondary[i];
-	}
+  // РљРѕРїРёСЂСѓРµРј РјР°СЃСЃРёРІС‹ С„Р»Р°РіРѕРІ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ Р·РЅР°С‡РµРЅРёР№
+  for (int i = 0; i < Rank; i++)
+  {
+    primary[i] = source.primary[i];
+    secondary[i] = source.secondary[i];
+  }
 
-	for (int i = 0; i < Rank; i++)
-	{
-		for (int j = 0; j < Rank; j++)
-		{
-			columns[i][j] = source.columns[i][j];
-			rows[i][j] = source.rows[i][j];
-		}
-	}
+  for (int i = 0; i < Rank; i++)
+  {
+    for (int j = 0; j < Rank; j++)
+    {
+      columns[i][j] = source.columns[i][j];
+      rows[i][j] = source.rows[i][j];
+    }
+  }
 
-	for (int i = 0; i < Rank; i++)
-	{
-		for (int j = 0; j < Rank; j++)
-		{
-			for (int h = 0; h < Rank; h++)
-			{
-				cellsHistory[i][j][h] = source.cellsHistory[i][j][h];
-			}
-		}
-	}
+  for (int i = 0; i < Rank; i++)
+  {
+    for (int j = 0; j < Rank; j++)
+    {
+      for (int h = 0; h < Rank; h++)
+      {
+        cellsHistory[i][j][h] = source.cellsHistory[i][j][h];
+      }
+    }
+  }
 
-	// Копирование названий файлов
-	startParametersFileName = source.startParametersFileName;
-	resultFileName = source.resultFileName;
-	checkpointFileName = source.checkpointFileName;
-	tempCheckpointFileName = source.tempCheckpointFileName;
+  // РљРѕРїРёСЂРѕРІР°РЅРёРµ РЅР°Р·РІР°РЅРёР№ С„Р°Р№Р»РѕРІ
+  startParametersFileName = source.startParametersFileName;
+  resultFileName = source.resultFileName;
+  checkpointFileName = source.checkpointFileName;
+  tempCheckpointFileName = source.tempCheckpointFileName;
 
-	// Копирование переменных текущего состояния
-	isInitialized = source.isInitialized;
-	squaresCount = source.squaresCount;
-	rowId = source.rowId;
-	columnId = source.columnId;
-	cellId = source.cellId;
+  // РљРѕРїРёСЂРѕРІР°РЅРёРµ РїРµСЂРµРјРµРЅРЅС‹С… С‚РµРєСѓС‰РµРіРѕ СЃРѕСЃС‚РѕСЏРЅРёСЏ
+  isInitialized = source.isInitialized;
+  squaresCount = source.squaresCount;
+  rowId = source.rowId;
+  columnId = source.columnId;
+  cellId = source.cellId;
 
-	// Копирование адресов текстовых констант
-	generatorStateHeader = source.generatorStateHeader;
+  // РљРѕРїРёСЂРѕРІР°РЅРёРµ Р°РґСЂРµСЃРѕРІ С‚РµРєСЃС‚РѕРІС‹С… РєРѕРЅСЃС‚Р°РЅС‚
+  generatorStateHeader = source.generatorStateHeader;
 }
 
 
-// Заданием имен файлов параметров и контрольной точки
+// Р—Р°РґР°РЅРёРµРј РёРјРµРЅ С„Р°Р№Р»РѕРІ РїР°СЂР°РјРµС‚СЂРѕРІ Рё РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРё
 void Generator::SetFileNames(string start, string result, string checkpoint, string temp)
 {
-	startParametersFileName = start;
-	resultFileName = result;
-	checkpointFileName = checkpoint;
-	tempCheckpointFileName = temp;
+  startParametersFileName = start;
+  resultFileName = result;
+  checkpointFileName = checkpoint;
+  tempCheckpointFileName = temp;
 }
 
 
-// Создание контрольной точки
+// РЎРѕР·РґР°РЅРёРµ РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРё
 void Generator::CreateCheckpoint()
 {
-	fstream newCheckpointFile;
+  fstream newCheckpointFile;
 
-	// Записываем настройки в новый файл контрольной точки
-	newCheckpointFile.open(tempCheckpointFileName, std::ios_base::out);
+  // Р—Р°РїРёСЃС‹РІР°РµРј РЅР°СЃС‚СЂРѕР№РєРё РІ РЅРѕРІС‹Р№ С„Р°Р№Р» РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ С‚РѕС‡РєРё
+  newCheckpointFile.open(tempCheckpointFileName.c_str(), std::ios_base::out);
 
-	if (newCheckpointFile.is_open())
-	{
-		Write(newCheckpointFile);
-		newCheckpointFile.close();
-		remove(checkpointFileName.c_str());
-		rename(tempCheckpointFileName.c_str(), checkpointFileName.c_str());
-	}
+  if (newCheckpointFile.is_open())
+  {
+    Write(newCheckpointFile);
+    newCheckpointFile.close();
+    remove(checkpointFileName.c_str());
+    rename(tempCheckpointFileName.c_str(), checkpointFileName.c_str());
+  }
 }
 
 
-// Запуск генерации квадратов
+// Р—Р°РїСѓСЃРє РіРµРЅРµСЂР°С†РёРё РєРІР°РґСЂР°С‚РѕРІ
 void Generator::Start()
 {
-	int isGet;			// Флаг получения нового значения для клетки
-	int cellValue;		// Новое значение для клетки
-	int oldCellValue;	// Старое значение, стоявшее в клетке
+  int isGet;        // Р¤Р»Р°Рі РїРѕР»СѓС‡РµРЅРёСЏ РЅРѕРІРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РґР»СЏ РєР»РµС‚РєРё
+  int cellValue;    // РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ РєР»РµС‚РєРё
+  int oldCellValue; // РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ, СЃС‚РѕСЏРІС€РµРµ РІ РєР»РµС‚РєРµ
 
-	int stop = 0;		// Флаг достижения окончания расчёта
+  int stop = 0;     // Р¤Р»Р°Рі РґРѕСЃС‚РёР¶РµРЅРёСЏ РѕРєРѕРЅС‡Р°РЅРёСЏ СЂР°СЃС‡С‘С‚Р°
 
-	if (isInitialized == Yes)
-	{
-		// Подбор значений клеток квадрата
-		do
-		{
-			// Подбор значения для очередной клетки квадрата
-				// Считываем координаты клетки
-				rowId = path[cellId][0];
-				columnId = path[cellId][1];
+  if (isInitialized == Yes)
+  {
+    // РџРѕРґР±РѕСЂ Р·РЅР°С‡РµРЅРёР№ РєР»РµС‚РѕРє РєРІР°РґСЂР°С‚Р°
+    do
+    {
+      // РџРѕРґР±РѕСЂ Р·РЅР°С‡РµРЅРёСЏ РґР»СЏ РѕС‡РµСЂРµРґРЅРѕР№ РєР»РµС‚РєРё РєРІР°РґСЂР°С‚Р°
+        // РЎС‡РёС‚С‹РІР°РµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РєР»РµС‚РєРё
+        rowId = path[cellId][0];
+        columnId = path[cellId][1];
 
-				// Генерируем новое значение для клетки (rowId, columnId)
-					// Сбрасываем значения переменных
-					isGet = 0;
-					cellValue = Square::Empty;
+        // Р“РµРЅРµСЂРёСЂСѓРµРј РЅРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ РєР»РµС‚РєРё (rowId, columnId)
+          // РЎР±СЂР°СЃС‹РІР°РµРј Р·РЅР°С‡РµРЅРёСЏ РїРµСЂРµРјРµРЅРЅС‹С…
+          isGet = 0;
+          cellValue = Square::Empty;
 
-					// Подбираем значение для клетки
-					for (int i = 0; i < Rank && !isGet; i++)
-					{
-						// Проверяем значение i на возможность записи в клетку (rowId, columnId)
-						if (columns[i][columnId] && rows[rowId][i] && cellsHistory[rowId][columnId][i])
-						{
-							// Значение не занято в столбцах и строках, но надо ещё проверить диагонали
-								// Выставляем флаг, который, возможно, будет сброшен диагональной проверкой
-								isGet = 1;
-								// Проверяем значение - не попадалось ли оно на диагоналях
-									// Проверка первой диагонали
-									if(columnId == rowId)
-									{
-										if (!primary[i])
-										{
-											isGet = 0;
-										}
-									}
+          // РџРѕРґР±РёСЂР°РµРј Р·РЅР°С‡РµРЅРёРµ РґР»СЏ РєР»РµС‚РєРё
+          for (int i = 0; i < Rank && !isGet; i++)
+          {
+            // РџСЂРѕРІРµСЂСЏРµРј Р·РЅР°С‡РµРЅРёРµ i РЅР° РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ Р·Р°РїРёСЃРё РІ РєР»РµС‚РєСѓ (rowId, columnId)
+            if (columns[i][columnId] && rows[rowId][i] && cellsHistory[rowId][columnId][i])
+            {
+              // Р—РЅР°С‡РµРЅРёРµ РЅРµ Р·Р°РЅСЏС‚Рѕ РІ СЃС‚РѕР»Р±С†Р°С… Рё СЃС‚СЂРѕРєР°С…, РЅРѕ РЅР°РґРѕ РµС‰С‘ РїСЂРѕРІРµСЂРёС‚СЊ РґРёР°РіРѕРЅР°Р»Рё
+                // Р’С‹СЃС‚Р°РІР»СЏРµРј С„Р»Р°Рі, РєРѕС‚РѕСЂС‹Р№, РІРѕР·РјРѕР¶РЅРѕ, Р±СѓРґРµС‚ СЃР±СЂРѕС€РµРЅ РґРёР°РіРѕРЅР°Р»СЊРЅРѕР№ РїСЂРѕРІРµСЂРєРѕР№
+                isGet = 1;
+                // РџСЂРѕРІРµСЂСЏРµРј Р·РЅР°С‡РµРЅРёРµ - РЅРµ РїРѕРїР°РґР°Р»РѕСЃСЊ Р»Рё РѕРЅРѕ РЅР° РґРёР°РіРѕРЅР°Р»СЏС…
+                  // РџСЂРѕРІРµСЂРєР° РїРµСЂРІРѕР№ РґРёР°РіРѕРЅР°Р»Рё
+                  if(columnId == rowId)
+                  {
+                    if (!primary[i])
+                    {
+                      isGet = 0;
+                    }
+                  }
 
-									// Проверка второй диагонали
-									if (rowId == Rank - 1 - columnId)
-									{
-										if (!secondary[i])
-										{
-											isGet = 0;
-										}
-									}
-						}
+                  // РџСЂРѕРІРµСЂРєР° РІС‚РѕСЂРѕР№ РґРёР°РіРѕРЅР°Р»Рё
+                  if (rowId == Rank - 1 - columnId)
+                  {
+                    if (!secondary[i])
+                    {
+                      isGet = 0;
+                    }
+                  }
+            }
 
-						// Запоминание значения, найденного в цикле
-						if (isGet)
-						{
-							cellValue = i;
-						}
-					}
+            // Р—Р°РїРѕРјРёРЅР°РЅРёРµ Р·РЅР°С‡РµРЅРёСЏ, РЅР°Р№РґРµРЅРЅРѕРіРѕ РІ С†РёРєР»Рµ
+            if (isGet)
+            {
+              cellValue = i;
+            }
+          }
 
-				// Обработка результата поиска
-				if (isGet)
-				{
-					// Обработка найденного нового значения
-						// Считывание текущего значения
-						oldCellValue = newSquare.Matrix[rowId][columnId];
-						// Запись нового значения
-							// Записываем значение в квадрат
-							newSquare.Matrix[rowId][columnId] = cellValue;
-							// Отмечаем значение в столбцах
-							columns[cellValue][columnId] = Used;
-							// Отмечаем значение в строках
-							rows[rowId][cellValue] = Used;
-							// Отмечаем значение в диагоналях
-							if (rowId == columnId)
-							{
-								primary[cellValue] = Used;
-							}
-							if (rowId == Rank - 1 - columnId)
-							{
-								secondary[cellValue] = Used;
-							}
-							// Отмечаем значение в истории значений клетки
-							cellsHistory[rowId][columnId][cellValue] = Used;
+        // РћР±СЂР°Р±РѕС‚РєР° СЂРµР·СѓР»СЊС‚Р°С‚Р° РїРѕРёСЃРєР°
+        if (isGet)
+        {
+          // РћР±СЂР°Р±РѕС‚РєР° РЅР°Р№РґРµРЅРЅРѕРіРѕ РЅРѕРІРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ
+            // РЎС‡РёС‚С‹РІР°РЅРёРµ С‚РµРєСѓС‰РµРіРѕ Р·РЅР°С‡РµРЅРёСЏ
+            oldCellValue = newSquare.Matrix[rowId][columnId];
+            // Р—Р°РїРёСЃСЊ РЅРѕРІРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ
+              // Р—Р°РїРёСЃС‹РІР°РµРј Р·РЅР°С‡РµРЅРёРµ РІ РєРІР°РґСЂР°С‚
+              newSquare.Matrix[rowId][columnId] = cellValue;
+              // РћС‚РјРµС‡Р°РµРј Р·РЅР°С‡РµРЅРёРµ РІ СЃС‚РѕР»Р±С†Р°С…
+              columns[cellValue][columnId] = Used;
+              // РћС‚РјРµС‡Р°РµРј Р·РЅР°С‡РµРЅРёРµ РІ СЃС‚СЂРѕРєР°С…
+              rows[rowId][cellValue] = Used;
+              // РћС‚РјРµС‡Р°РµРј Р·РЅР°С‡РµРЅРёРµ РІ РґРёР°РіРѕРЅР°Р»СЏС…
+              if (rowId == columnId)
+              {
+                primary[cellValue] = Used;
+              }
+              if (rowId == Rank - 1 - columnId)
+              {
+                secondary[cellValue] = Used;
+              }
+              // РћС‚РјРµС‡Р°РµРј Р·РЅР°С‡РµРЅРёРµ РІ РёСЃС‚РѕСЂРёРё Р·РЅР°С‡РµРЅРёР№ РєР»РµС‚РєРё
+              cellsHistory[rowId][columnId][cellValue] = Used;
 
-						// Возвращение предыдущего значения без зачистки истории (так как мы работаем с этой клеткой)
-						if (oldCellValue != Square::Empty)
-						{
-							// Возвращаем значение в столбцы
-							columns[oldCellValue][columnId] = Free;
-							// Возвращаем значение в строки
-							rows[rowId][oldCellValue] = Free;
-							// Возвращаем значение в диагонали
-							if (rowId == columnId)
-							{
-								primary[oldCellValue] = Free;
-							}
-							if (rowId == Rank - 1 - columnId)
-							{
-								secondary[oldCellValue] = Free;
-							}
-						}
+            // Р’РѕР·РІСЂР°С‰РµРЅРёРµ РїСЂРµРґС‹РґСѓС‰РµРіРѕ Р·РЅР°С‡РµРЅРёСЏ Р±РµР· Р·Р°С‡РёСЃС‚РєРё РёСЃС‚РѕСЂРёРё (С‚Р°Рє РєР°Рє РјС‹ СЂР°Р±РѕС‚Р°РµРј СЃ СЌС‚РѕР№ РєР»РµС‚РєРѕР№)
+            if (oldCellValue != Square::Empty)
+            {
+              // Р’РѕР·РІСЂР°С‰Р°РµРј Р·РЅР°С‡РµРЅРёРµ РІ СЃС‚РѕР»Р±С†С‹
+              columns[oldCellValue][columnId] = Free;
+              // Р’РѕР·РІСЂР°С‰Р°РµРј Р·РЅР°С‡РµРЅРёРµ РІ СЃС‚СЂРѕРєРё
+              rows[rowId][oldCellValue] = Free;
+              // Р’РѕР·РІСЂР°С‰Р°РµРј Р·РЅР°С‡РµРЅРёРµ РІ РґРёР°РіРѕРЅР°Р»Рё
+              if (rowId == columnId)
+              {
+                primary[oldCellValue] = Free;
+              }
+              if (rowId == Rank - 1 - columnId)
+              {
+                secondary[oldCellValue] = Free;
+              }
+            }
 
-						// Обработка окончания формирования квадрата
-						if (cellId == cellsInPath - 1)
-						{
-							// Обрабатываем найденный квадрат
-							ProcessSquare();
-						}
-						else
-						{
-							// Делаем шаг вперёд
-							cellId++;
-						}
-				}
-				else
-				{
-					// Обработка факта ненахождения нового значения в клетке (rowId; columnId)
-						// Возвращаем текущее значение из квадрата в массивы
-							// Считываем текущее значение
-							cellValue = newSquare.Matrix[rowId][columnId];
-							// Возвращаем значение в служебные массивы
-							if (cellValue != Square::Empty)
-							{
-								// Возвращаем значение в столбцы
-								columns[cellValue][columnId] = Free;
-								// Возвращаем значение в строки
-								rows[rowId][cellValue] = Free;
-								// Возвращаем значение в диагонали
-								if (rowId == columnId)
-								{
-									primary[cellValue] = Free;
-								}
-								if (rowId == Rank - 1 - columnId)
-								{
-									secondary[cellValue] = Free;
-								}
-								// Сбрасываем клетку квадрата
-								newSquare.Matrix[rowId][columnId] = Square::Empty;
-								// Зачищаем историю клетки (rowId, columnId)
-								for (int i = 0; i < Rank; i++)
-								{
-									cellsHistory[rowId][columnId][i] = 1;
-								}
-							}
+            // РћР±СЂР°Р±РѕС‚РєР° РѕРєРѕРЅС‡Р°РЅРёСЏ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ РєРІР°РґСЂР°С‚Р°
+            if (cellId == cellsInPath - 1)
+            {
+              // РћР±СЂР°Р±Р°С‚С‹РІР°РµРј РЅР°Р№РґРµРЅРЅС‹Р№ РєРІР°РґСЂР°С‚
+              ProcessSquare();
+            }
+            else
+            {
+              // Р”РµР»Р°РµРј С€Р°Рі РІРїРµСЂС‘Рґ
+              cellId++;
+            }
+        }
+        else
+        {
+          // РћР±СЂР°Р±РѕС‚РєР° С„Р°РєС‚Р° РЅРµРЅР°С…РѕР¶РґРµРЅРёСЏ РЅРѕРІРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РІ РєР»РµС‚РєРµ (rowId; columnId)
+            // Р’РѕР·РІСЂР°С‰Р°РµРј С‚РµРєСѓС‰РµРµ Р·РЅР°С‡РµРЅРёРµ РёР· РєРІР°РґСЂР°С‚Р° РІ РјР°СЃСЃРёРІС‹
+              // РЎС‡РёС‚С‹РІР°РµРј С‚РµРєСѓС‰РµРµ Р·РЅР°С‡РµРЅРёРµ
+              cellValue = newSquare.Matrix[rowId][columnId];
+              // Р’РѕР·РІСЂР°С‰Р°РµРј Р·РЅР°С‡РµРЅРёРµ РІ СЃР»СѓР¶РµР±РЅС‹Рµ РјР°СЃСЃРёРІС‹
+              if (cellValue != Square::Empty)
+              {
+                // Р’РѕР·РІСЂР°С‰Р°РµРј Р·РЅР°С‡РµРЅРёРµ РІ СЃС‚РѕР»Р±С†С‹
+                columns[cellValue][columnId] = Free;
+                // Р’РѕР·РІСЂР°С‰Р°РµРј Р·РЅР°С‡РµРЅРёРµ РІ СЃС‚СЂРѕРєРё
+                rows[rowId][cellValue] = Free;
+                // Р’РѕР·РІСЂР°С‰Р°РµРј Р·РЅР°С‡РµРЅРёРµ РІ РґРёР°РіРѕРЅР°Р»Рё
+                if (rowId == columnId)
+                {
+                  primary[cellValue] = Free;
+                }
+                if (rowId == Rank - 1 - columnId)
+                {
+                  secondary[cellValue] = Free;
+                }
+                // РЎР±СЂР°СЃС‹РІР°РµРј РєР»РµС‚РєСѓ РєРІР°РґСЂР°С‚Р°
+                newSquare.Matrix[rowId][columnId] = Square::Empty;
+                // Р—Р°С‡РёС‰Р°РµРј РёСЃС‚РѕСЂРёСЋ РєР»РµС‚РєРё (rowId, columnId)
+                for (int i = 0; i < Rank; i++)
+                {
+                  cellsHistory[rowId][columnId][i] = 1;
+                }
+              }
 
-						// Делаем шаг назад
-						cellId--;
-				}
+            // Р”РµР»Р°РµРј С€Р°Рі РЅР°Р·Р°Рґ
+            cellId--;
+        }
 
-				// Проверяем условие окончания поиска
-				if (keyValue == Square::Empty)
-				{
-					// Выставление флага при завершаеющем значении "-1" при котором производится уход из клетки
-					if (newSquare.Matrix[keyRowId][keyColumnId] == keyValue && cellId < 0)
-					{
-						stop = Yes;
-					}
-				}
-				else
-				{
-					// Выставление флага при обычном завершаеющем значении
-					if (newSquare.Matrix[keyRowId][keyColumnId] == keyValue)
-					{
-						stop = Yes;
-					}
-				}
-		}
-		while (!stop);
-	}
+        // РџСЂРѕРІРµСЂСЏРµРј СѓСЃР»РѕРІРёРµ РѕРєРѕРЅС‡Р°РЅРёСЏ РїРѕРёСЃРєР°
+        if (keyValue == Square::Empty)
+        {
+          // Р’С‹СЃС‚Р°РІР»РµРЅРёРµ С„Р»Р°РіР° РїСЂРё Р·Р°РІРµСЂС€Р°РµСЋС‰РµРј Р·РЅР°С‡РµРЅРёРё "-1" РїСЂРё РєРѕС‚РѕСЂРѕРј РїСЂРѕРёР·РІРѕРґРёС‚СЃСЏ СѓС…РѕРґ РёР· РєР»РµС‚РєРё
+          if (newSquare.Matrix[keyRowId][keyColumnId] == keyValue && cellId < 0)
+          {
+            stop = Yes;
+          }
+        }
+        else
+        {
+          // Р’С‹СЃС‚Р°РІР»РµРЅРёРµ С„Р»Р°РіР° РїСЂРё РѕР±С‹С‡РЅРѕРј Р·Р°РІРµСЂС€Р°РµСЋС‰РµРј Р·РЅР°С‡РµРЅРёРё
+          if (newSquare.Matrix[keyRowId][keyColumnId] == keyValue)
+          {
+            stop = Yes;
+          }
+        }
+    }
+    while (!stop);
+  }
 }
 
 
-// Обработка квадрата
+// РћР±СЂР°Р±РѕС‚РєР° РєРІР°РґСЂР°С‚Р°
 void Generator::ProcessSquare()
 {
-	// Увеличиваем счётчик найденных квадратов
-	squaresCount++;
+  // РЈРІРµР»РёС‡РёРІР°РµРј СЃС‡С‘С‚С‡РёРє РЅР°Р№РґРµРЅРЅС‹С… РєРІР°РґСЂР°С‚РѕРІ
+  squaresCount++;
 
-	// Генерируем событие
-	__raise SquareGenerated(newSquare);
+  // Р“РµРЅРµСЂРёСЂСѓРµРј СЃРѕР±С‹С‚РёРµ
+  this->SquareGenerated(newSquare);
 }
+

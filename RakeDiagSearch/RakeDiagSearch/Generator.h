@@ -1,4 +1,4 @@
-// Генератор Диагональных латинских квадратов
+﻿// Генератор Диагональных латинских квадратов
 
 # if !defined Generator_h
 # define Generator_h
@@ -8,24 +8,22 @@
 # include <string>
 
 # include "Square.h"
-# include "boost/signals2.hpp"
-# include "boost/bind.hpp"
 
 using namespace std;
 
 class Generator
 {
 public:
-	// __event void SquareGenerated(Square generatedSquare); // Событие генерирования нового диагонального квадрата
-        boost::signals2::signal<void (Square)> SquareGenerated;  // Событие генерирования нового диагонального квадрата
-	Generator();					// Конструктор по умолчанию
+	__event void SquareGenerated(Square generatedSquare);	// Событие генерирования нового диагонального квадрата
+
+	Generator();							// Конструктор по умолчанию
 	Generator(Generator& source);			// Конструктор копировния
-	void Start();					// Запуск генерации квадратов
-	void Reset();					// Сброс всех значений внутренних структур
+	void Start();							// Запуск генерации квадратов
+	void Reset();							// Сброс всех значений внутренних структур
 	void SetFileNames(string start, string result, string checkpoint, string temp);	// Заданием имен файлов параметров и контрольной точки
 	void Initialize(string start, string result, string checkpoint, string temp);	// Инициализация поиска
 
- 	Generator& operator = (Generator&  value);									// Оператор копирования
+	Generator& operator = (Generator&  value);									// Оператор копирования
 	friend std::ostream& operator << (std::ostream& os, Generator& value);		// Оператор записи состояние генератора
 	friend std::istream& operator >> (std::istream& is, Generator& value);		// Оператор считывания состояния генератора
 
@@ -36,16 +34,16 @@ protected:
 	static const int Yes = 1;				// Флаг "Да"
 	static const int No = 0;				// Флаг "Нет"
 	static const int MaxCellsInPath = Rank*Rank;	// Максимальное число обрабатываемых клеток
-	int cellsInPath;				// Число обрабатываемых клеток
+	int cellsInPath;						// Число обрабатываемых клеток
 
 	void CopyState(Generator& source);		// Копирование состояния
 	void Read(std::istream& is);			// Считывание состояние генератора из потока
 	void Write(std::ostream& os);			// Запись состояния генератора в поток
 
-	Square newSquare;				// Генерируемый квадрат
+	Square newSquare;						// Генерируемый квадрат
 
 	int path[MaxCellsInPath][2];			// Путь заполнения матрицы квадрата - path[i][0] - строка на шаге i, path[i][1] - столбец
-	int keyRowId;					// Идентификатор строки ключевой клетки - по значению которой расчёт будет останавливаться
+	int keyRowId;							// Идентификатор строки ключевой клетки - по значению которой расчёт будет останавливаться
 	int keyColumnId;						// Идентификатор столбца ключевой клетки
 	int keyValue;							// Значение ключевой клетки, по достижению которого расчёт будет останавливаться
 

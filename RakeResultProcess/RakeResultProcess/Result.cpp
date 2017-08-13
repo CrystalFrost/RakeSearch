@@ -1,4 +1,4 @@
-# include <fstream>
+﻿# include <fstream>
 # include <string>
 
 # include "Result.h"

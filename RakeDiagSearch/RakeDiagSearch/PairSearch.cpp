@@ -1,4 +1,4 @@
-// Поиск пар ортогональных диагональных латинских квадратов
+﻿// Поиск пар ортогональных диагональных латинских квадратов
 
 # include "PairSearch.h"
 # include <string>
@@ -63,8 +63,8 @@ void PairSearch::Initialize(string start, string result, string checkpoint, stri
 
 	// Считываем состояние генератора и поиска из файла контрольной точки или начальных значений
 		// Открытие файлов со стартовыми параметрами и файла контрольной точки
-		startFile.open(startParametersFileName.c_str(), std::ios_base::in);
-		checkpointFile.open(checkpointFileName.c_str(), std::ios_base::in);
+		startFile.open(startParametersFileName, std::ios_base::in);
+		checkpointFile.open(checkpointFileName, std::ios_base::in);
 
 		// Считываение состояния
 		if (checkpointFile.is_open())
@@ -85,7 +85,7 @@ void PairSearch::Initialize(string start, string result, string checkpoint, stri
 		checkpointFile.close();
 
 		// Считывание стартовых параметров для перезапуска поиска ортогональных квадратов к очередному квадрату
-		startFile.open(startParametersFileName.c_str(), std::ios_base::in);
+		startFile.open(startParametersFileName, std::ios_base::in);
 
 		if (startFile.is_open())
 		{
@@ -233,8 +233,7 @@ void PairSearch::OnSquareGenerated(Square newSquare)
 void PairSearch::StartPairSearch()
 {
 	// Подписываемся на событие генерации нового ДЛК
-        squareAGenerator.SquareGenerated.connect(boost::bind(
-                   &PairSearch::OnSquareGenerated, this, _1));
+	__hook(&Generator::SquareGenerated, &squareAGenerator, &PairSearch::OnSquareGenerated);
 
 	// Заканчиваем обработку текущего квадрата
 	if (isStartFromCheckpoint == Yes)
@@ -246,7 +245,7 @@ void PairSearch::StartPairSearch()
 	squareAGenerator.Start();
 
 	// Отписываемся от события генерации нового ДЛК
-        squareAGenerator.SquareGenerated.disconnect_all_slots();
+	__unhook(&Generator::SquareGenerated, &squareAGenerator, &PairSearch::OnSquareGenerated);
 
 	// Вывод итогов поиска пар
 	PrintSearchTotals();
@@ -256,7 +255,7 @@ void PairSearch::StartPairSearch()
 // Обработка нахождения пары к сгенерированному ДЛК
 void PairSearch::ProcessPairSquare()
 {
-	ofstream resultFile;		// Поток для I/O в файл с результатами
+	fstream resultFile;		// Поток для I/O в файл с результатами
 
 	// Учитываем найденную пару
 	pairsCount++;
@@ -279,7 +278,7 @@ void PairSearch::ProcessPairSquare()
 			cout << "# ------------------------" << endl;
 
 			// Вывод информации в файл
-			resultFile.open(resultFileName.c_str(), std::ios_base::app);
+			resultFile.open(resultFileName, std::ios_base::app);
 			resultFile << "# ------------------------" << endl;
 			resultFile << "# Detected orthogonal square(s) for the square: " << endl;
 			resultFile << endl;
@@ -292,7 +291,7 @@ void PairSearch::ProcessPairSquare()
 		cout << newSquare;
 
 		// Вывод информации в файл
-		resultFile.open(resultFileName.c_str(), std::ios_base::app);
+		resultFile.open(resultFileName, std::ios_base::app);
 		resultFile << newSquare;
 		resultFile.close();
 
@@ -304,7 +303,7 @@ void PairSearch::ProcessPairSquare()
 // Вывод информации об итогах поиска квадратов, ортогональных к заданному ДЛК
 void PairSearch::PrintSearchFooter()
 {
-	ofstream resultFile;
+	fstream resultFile;
 
 	// Вывод итогов в консоль
 	cout << "# ------------------------" << endl;
@@ -312,7 +311,7 @@ void PairSearch::PrintSearchFooter()
 	cout << "# ------------------------" << endl;
 
 	// Вывод итогов в файл
-	resultFile.open(resultFileName.c_str(), std::ios_base::app);
+	resultFile.open(resultFileName, std::ios_base::app);
 	resultFile << "# ------------------------" << endl;
 	resultFile << "# Pairs found: " << pairsCount << endl;
 	resultFile << "# ------------------------" << endl;
@@ -323,7 +322,7 @@ void PairSearch::PrintSearchFooter()
 // Вывод информации об итогах всего поиска в целом
 void PairSearch::PrintSearchTotals()
 {
-	ofstream resultFile;
+	fstream resultFile;
 
 	// Вывод итогов в консоль
 	cout << "# ------------------------" << endl;
@@ -332,7 +331,7 @@ void PairSearch::PrintSearchTotals()
 	cout << "# ------------------------" << endl;
 
 	// Вывод итогов в файл
-	resultFile.open(resultFileName.c_str(), std::ios_base::app);
+	resultFile.open(resultFileName, std::ios_base::app);
 	resultFile << "# ------------------------" << endl;
 	resultFile << "# Total pairs found: " << totalPairsCount << endl;
 	resultFile << "# Total squares with pairs: " << totalSquaresWithPairs << endl;
@@ -346,7 +345,7 @@ void PairSearch::CreateCheckpoint()
 {
 	fstream checkpointFile;
 
-	checkpointFile.open(tempCheckpointFileName.c_str(), std::ios_base::out);
+	checkpointFile.open(tempCheckpointFileName, std::ios_base::out);
 	if (checkpointFile.is_open())
 	{
 		Write(checkpointFile);

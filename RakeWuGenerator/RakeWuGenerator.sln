@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RakeWuGenerator", "RakeWuGenerator\RakeWuGenerator.vcxproj", "{5C60DF61-3414-436E-8278-717DF0C34E0E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5C60DF61-3414-436E-8278-717DF0C34E0E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5C60DF61-3414-436E-8278-717DF0C34E0E}.Debug|Win32.Build.0 = Debug|Win32
+		{5C60DF61-3414-436E-8278-717DF0C34E0E}.Release|Win32.ActiveCfg = Release|Win32
+		{5C60DF61-3414-436E-8278-717DF0C34E0E}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

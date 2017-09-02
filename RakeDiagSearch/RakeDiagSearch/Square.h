@@ -12,6 +12,8 @@ class Square
 public:
 	static const int Rank = 9;					// Ранг квадрата
 	static const int Empty = -1;				// Пустое, не заданное значение
+	static const char HeadToken = '{';			// Символ начала информации о квадрате в потоке
+	static const char TailToken = '}';			// Символ окончания информации о квадрате в потоке
 
 	static int OrthoDegree(Square a, Square b);	// Степень ортогональности квадратов a и b
 

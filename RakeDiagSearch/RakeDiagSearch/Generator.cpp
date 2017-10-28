@@ -630,8 +630,7 @@ void Generator::ProcessSquare()
   // Увеличиваем счётчик найденных квадратов
   squaresCount++;
 
-  /*// Генерируем событие
-  this->SquareGenerated(newSquare);*/
+  // Сообщаем о генерации квадрата
   if (subscriber != 0)
   {
     subscriber->OnSquareGenerated(newSquare);

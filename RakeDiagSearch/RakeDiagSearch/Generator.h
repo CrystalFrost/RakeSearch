@@ -8,8 +8,6 @@
 # include <string>
 
 # include "Square.h"
-/*# include "boost/signals2.hpp"
-# include "boost/bind.hpp"*/
 
 using namespace std;
 
@@ -18,9 +16,8 @@ class MovePairSearch;
 class Generator
 {
 public:
-        /*boost::signals2::signal<void (Square)> SquareGenerated;  // Событие генерирования нового диагонального квадрата*/
 	Generator();					// Конструктор по умолчанию
-	Generator(Generator& source);			// Конструктор копировния
+	Generator(Generator& source);	// Конструктор копировния
 	void Start();					// Запуск генерации квадратов
 	void Reset();					// Сброс всех значений внутренних структур
 	void SetFileNames(string start, string result, string checkpoint, string temp);	// Заданием имен файлов параметров и контрольной точки

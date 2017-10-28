@@ -92,7 +92,7 @@ void MovePairSearch::InitializeMoveSearch(string start, string result,
 			Read(checkpointFile);
 			isStartFromCheckpoint = 1;
 		}
-		catch (int exception)
+		catch (...)
 		{
 			cerr << "Error opening checkpoint file! Starting with workunit start parameters." << endl;
 			isStartFromCheckpoint = 0;
@@ -128,7 +128,7 @@ void MovePairSearch::Read(istream& is)
 
 		if (is.eof())
 		{
-			throw (1);
+			throw ("Expected start marker, but EOF found.");
 		}
     }
     while (marker != moveSearchGlobalHeader);
@@ -143,7 +143,7 @@ void MovePairSearch::Read(istream& is)
 
 		if (is.eof())
 		{
-			throw (1);
+			throw ("Expected start marker, but EOF found.");
 		}
 	}
     while (marker != moveSearchComponentHeader);
@@ -204,16 +204,13 @@ void MovePairSearch::CreateCheckpoint()
 // Запуск поиска ортогональных квадратов методом перестановки строк
 void MovePairSearch::StartMoveSearch()
 {
-/*  // Подписываемся на событие нахождения очередного ДЛК
-  squareAGenerator.SquareGenerated.connect(boost::bind(
-                   &MovePairSearch::OnSquareGenerated, this, _1));*/
+  // Подписываемся на событие нахождения очередного ДЛК
   squareAGenerator.Subscribe(this); 
 
   // Запускаем генерацию ДЛК
   squareAGenerator.Start();
 
-/*  // Отписываемся от события нахождения очередного ДЛК
-  squareAGenerator.SquareGenerated.disconnect_all_slots();*/
+  // Отписываемся от события нахождения очередного ДЛК
   squareAGenerator.Unsubscribe();
 
   // Вывод итогов поиска
@@ -505,7 +502,7 @@ void MovePairSearch::ProcessOrthoSquare()
           cout << "# ------------------------" << endl;
         }
         // Вывод информации в файл
-        resultFile.open(resultFileName.c_str(), std::ios_base::binary + std::ios_base::app);
+        resultFile.open(resultFileName.c_str(), std::ios_base::binary | std::ios_base::app);
         if (resultFile.is_open())
         {
           resultFile << "{" << endl;
@@ -530,7 +527,7 @@ void MovePairSearch::ProcessOrthoSquare()
         }
 
         // Вывод информации в файл
-        resultFile.open(resultFileName.c_str(), std::ios_base::binary + std::ios_base::app);
+        resultFile.open(resultFileName.c_str(), std::ios_base::binary | std::ios_base::app);
         if (resultFile.is_open())
         { 
           resultFile << b << endl;
@@ -563,7 +560,7 @@ void MovePairSearch::CheckMutualOrthogonality()
   }
 
   // Открываем файл с результатами
-  resultFile.open(resultFileName.c_str(), std::ios_base::binary + std::ios_base::app);
+  resultFile.open(resultFileName.c_str(), std::ios_base::binary | std::ios_base::app);
   if (!resultFile.is_open()) { cout << "Error opening file!"; return; }
 
   // Проверка взаимной ортогональности набора квадратов
@@ -608,7 +605,7 @@ void MovePairSearch::ShowSearchTotals()
   }
 
   // Вывод итогов в файл
-  resultFile.open(resultFileName.c_str(), std::ios_base::binary + std::ios_base::app);
+  resultFile.open(resultFileName.c_str(), std::ios_base::binary | std::ios_base::app);
   if (resultFile.is_open())
   {
     resultFile << "# ------------------------" << endl;

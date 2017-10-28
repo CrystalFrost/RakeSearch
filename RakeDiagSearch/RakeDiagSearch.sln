@@ -5,9 +5,9 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RakeDiagSearch", "RakeDiagSearch\RakeDiagSearch.vcxproj", "{0CF48A4A-E78A-43B9-9985-4A4AB4D1D235}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboinc_staticcrt", "..\..\boinc\win_build\libboinc_staticcrt_vs2013.vcxproj", "{B00664BD-71EB-46C1-957E-CD851418D395}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboinc_staticcrt", "..\..\..\boinc\win_build\libboinc_staticcrt_vs2013.vcxproj", "{B00664BD-71EB-46C1-957E-CD851418D395}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboincapi_staticcrt", "..\..\boinc\win_build\libboincapi_staticcrt_vs2013.vcxproj", "{07BDA8F7-4AAF-4A3B-B96E-EA72A143C5AE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboincapi_staticcrt", "..\..\..\boinc\win_build\libboincapi_staticcrt_vs2013.vcxproj", "{07BDA8F7-4AAF-4A3B-B96E-EA72A143C5AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -39,4 +39,28 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="app_info.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="boinc_api_howto.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="x8_workunit.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="x9_workunit.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Makefile">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Makefile32">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

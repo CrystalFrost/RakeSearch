@@ -7,7 +7,7 @@
     </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
@@ -21,9 +21,6 @@
     <ClInclude Include="MovePairSearch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PairSearch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Square.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -32,22 +29,14 @@
     <ClCompile Include="Generator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MovePairSearch.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PairSearch.cpp">
+    <ClCompile Include="MovePairSearch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Square.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="PairSearch_start_parameters.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
   </ItemGroup>
 </Project>

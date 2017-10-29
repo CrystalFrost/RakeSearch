@@ -5,6 +5,7 @@
 # include <iomanip>
 # include <string>
 # include <sstream>
+# include <math.h>
 
 # include "Generator.h"
 
@@ -42,6 +43,9 @@ void Generator::GenerateWorkunits(string start, string result, string checkpoint
 
 	// Создание контрольной точки после завершения генерации
 	CreateCheckpoint();
+
+	/*// Собирание последней порции статистики
+	GatherStatistics();*/
 }
 
 
@@ -113,6 +117,11 @@ void Generator::Reset()
 
 		// Сброс флага инициализированности
 		isInitialized = No;
+
+	// Сброс вспомогательных значений - для задач статистики и т.п.
+		// Сброс счётчиков для подсчёта числа заданий, соответствующих главной диагонали
+		diagonalCounter = 0;
+		diagonalValue = 0;
 }
 
 
@@ -642,6 +651,7 @@ void Generator::ProcessWorkunit()
 
 		case 9:
 			ProcessWorkunitR9();
+			/*GatherStatistics();*/
 		break;
 	}
 }
@@ -783,7 +793,7 @@ void Generator::ProcessWorkunitR9()
 {
 	fstream workunitFile;
 	string workunitFileName;
-	std::stringstream wuNameBuilder;
+	stringstream wuNameBuilder;
 	int workunitNumber;
 	int workunitKeyCellValue;
 
@@ -796,7 +806,7 @@ void Generator::ProcessWorkunitR9()
 		workunitKeyCellValue = newSquare.Matrix[workunitKeyRowId][workunitKeyColumnId];
 
 		// Формируем название файла
-		wuNameBuilder << "wu_" << std::setw(6) << std::setfill('0') << workunitNumber << ".txt";
+		wuNameBuilder << "wu_" << std::setw(9) << std::setfill('0') << workunitNumber << ".txt";
 		workunitFileName = wuNameBuilder.str();
 
 		// Формируем файл с заданием
@@ -906,4 +916,61 @@ void Generator::ProcessWorkunitR9()
 
 	// Увеличиваем счётчик сгенерированных заданий 
 	workunitsCount++;
+}
+
+
+// Вывод информации о сгенерированном задании
+void Generator::GatherStatistics()
+{
+	int powOf10[10] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
+	int oldDiagonalValue = 0;
+	int newDiagonalValue = 0;
+	int diagonalWorkunits = 0;
+	int oldDiagonaStartNumber = 0;
+	int oldDiagonalFinishNumber = 0;
+	stringstream wuNumberBuilder;
+	string startNumber;
+	string finishNumber;
+
+	// Учёт сгенерированного задания
+	snapshotNumber++;
+	workunitsCount++;
+
+	// Вычисление "значения главной диагонали" для нового задания
+	for (int i = Rank; i > 0; i--)
+	{
+		newDiagonalValue += newSquare.Matrix[i][i] * powOf10[Rank - i];
+	}
+
+	// Определение перехода на новую диагональ
+	if (newDiagonalValue != diagonalValue)
+	{
+		// Подсчёт и вывод статистических показателей
+			// Определение числа заданий, соответствующих этой диагонали
+			diagonalWorkunits = snapshotNumber - diagonalCounter;
+			// Запоминание "значения" пройденной диагонали
+			oldDiagonalValue = diagonalValue;
+			// Запоминание номера задания с которого начиналась пройденная диагональ
+			oldDiagonaStartNumber = diagonalStartNumber;
+			oldDiagonalFinishNumber = snapshotNumber - 1;
+
+			// Запоминание текущих значений счётчиков
+			diagonalCounter = snapshotNumber;
+			diagonalValue = newDiagonalValue;
+			diagonalStartNumber = snapshotNumber;
+
+			// Вывод статистической информации
+				// Формирование номером заданий начинающих и завершающих диагональ
+				wuNumberBuilder << std::setw(9) << std::setfill('0') << oldDiagonaStartNumber;
+				startNumber = wuNumberBuilder.str();
+				wuNumberBuilder.str(string());
+				wuNumberBuilder << std::setw(9) << std::setfill('0') << oldDiagonalFinishNumber;
+				finishNumber = wuNumberBuilder.str();
+
+				// Вывод главной диагонали и номера workunit-а
+				if (oldDiagonalValue > 0)
+				{
+					cout << startNumber << " " << finishNumber << " " << diagonalWorkunits << endl;
+				}
+	}
 }

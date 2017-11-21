@@ -831,6 +831,8 @@ void Generator::ProcessWorkunitR9()
 					 << endl;
 
 		// Записываем путь переходов по клеткам
+		/* For small WU
+		workunitFile << "1 4" << endl << "1 5" << endl << "1 6" << endl << "1 8" << endl*/
 		workunitFile << "1 2" << endl << "1 3" << endl << "1 4" << endl << "1 5" << endl << "1 6" << endl << "1 8" << endl
 					 << "2 0" << endl << "2 1" << endl << "2 3" << endl << "2 4" << endl << "2 5" << endl << "2 7" << endl << "2 8" << endl
 					 << "3 0" << endl << "3 1" << endl << "3 2" << endl << "3 4" << endl << "3 6" << endl << "3 7" << endl << "3 8" << endl

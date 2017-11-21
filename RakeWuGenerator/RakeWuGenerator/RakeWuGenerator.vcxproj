@@ -120,6 +120,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="x8_start_parameters.txt" />
+    <Text Include="x9_small_workunit_start_parameters.txt" />
     <Text Include="x9_start_parameters.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

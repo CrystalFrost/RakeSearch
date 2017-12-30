@@ -12,21 +12,21 @@ Square::Square()
 
 
 // Создание квадрата по заданной матрице
-Square::Square(int source[Rank][Rank])
+Square::Square(const int source[Rank][Rank])
 {
 	Initialize(source);
 }
 
 
 // Конструктор копирования
-Square::Square(Square& source)
+Square::Square(const Square& source)
 {
 	Initialize(source.Matrix);
 }
 
 
 // Инициализация внутренних структур
-void Square::Initialize(int source[Rank][Rank])
+void Square::Initialize(const int source[Rank][Rank])
 {
 	for (int rowId = 0; rowId < Rank; rowId++)
 	{
@@ -98,6 +98,44 @@ return is;
 }
 
 
+// Запись квадрата в вектор строк (также векторов)
+std::vector<vector<int>>& operator << (std::vector<vector<int>>& outvector, Square& value)
+{
+	// Очистка вектора
+	outvector.clear();
+
+	// Запись элементов матрицы квадрата по строкам
+	outvector.resize(Square::Rank);
+
+	for (int i = 0; i < Square::Rank; i++)
+	{
+		outvector[i].resize(Square::Rank);
+
+		for (int j = 0; j < Square::Rank; j++)
+		{
+			outvector[i][j] = value.Matrix[i][j];
+		}
+	}
+
+return outvector;
+}
+
+
+// Считывание квадрата из вектора строк (также векторов)
+std::vector<vector<int>>& operator >> (std::vector<vector<int>>& invector, Square& value)
+{
+	// Считывание элементов матрицы квадрата по строкам
+	for (int i = 0; i < Square::Rank; i++)
+	{
+		for (int j = 0; j < Square::Rank; j++)
+		{
+			value.Matrix[i][j] =invector[i][j];
+		}
+	}
+
+return invector;
+}
+
 // Чтение квадрата из потока
 void Square::Read(std::istream& is)
 {
@@ -147,6 +185,7 @@ void Square::Write(std::ostream& os)
 	// Запись символа окончания блока информации
 	os << TailToken << endl;
 }
+
 
 // Проверка квадрата на то, что он является диагональным латинским квадратом
 int Square::IsDiagonal()
@@ -227,7 +266,7 @@ int Square::IsLatin()
 
 
 // Проверка ортогональности квадратов a и b
-int Square::OrthoDegree(Square a, Square b)
+int Square::OrthoDegree(Square& a, Square& b)
 {
 	int degree = 0;				// Степерь ортогональности
 	int freePair[Rank][Rank];	// Массив использования пар значений в получающемся греко-латинском квадрате

@@ -110,9 +110,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DLX_DLS.h" />
     <ClInclude Include="Square.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DLX_DLS.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Square.cpp" />
   </ItemGroup>

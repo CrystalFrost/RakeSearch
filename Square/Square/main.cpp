@@ -1,4 +1,4 @@
-# include <iostream>
+п»ї# include <iostream>
 # include <fstream>
 # include "Square.h"
 # include "DLX_DLS.h"
@@ -42,7 +42,7 @@ int main()
 	}*/
 
 	
-	/*// Конверсия из формата Эдуарда
+	/*// РљРѕРЅРІРµСЂСЃРёСЏ РёР· С„РѕСЂРјР°С‚Р° Р­РґСѓР°СЂРґР°
 	const int squaresCount = 61824;
 	Square item;
 	fstream infile;
@@ -76,7 +76,7 @@ int main()
 	fstream edgesFile;
 	int edgesCount = 0;
 
-	// Считывание списка ДЛК
+	// РЎС‡РёС‚С‹РІР°РЅРёРµ СЃРїРёСЃРєР° Р”Р›Рљ
 	infile.open(infileName, std::ios_base::in);
 
 	if (infile.is_open())
@@ -96,17 +96,17 @@ int main()
 
 	cout << "Start to count graph edges..." << endl;
 
-	// Открытие файла для записи рёбер графа
+	// РћС‚РєСЂС‹С‚РёРµ С„Р°Р№Р»Р° РґР»СЏ Р·Р°РїРёСЃРё СЂС‘Р±РµСЂ РіСЂР°С„Р°
 	edgesFile.open(edgesFileName, std::ios_base::out);
 	edgesFile << "IdA;IdB" << endl;
 
-	// Проверка ортогональности ДЛК
+	// РџСЂРѕРІРµСЂРєР° РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅРѕСЃС‚Рё Р”Р›Рљ
 	for (int i = 0; i < SquaresCount; i++)
 	{
-		// Поиск квадратов ортогональных i-му квадрату
+		// РџРѕРёСЃРє РєРІР°РґСЂР°С‚РѕРІ РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅС‹С… i-РјСѓ РєРІР°РґСЂР°С‚Сѓ
 		for (int j = i + 1; j < SquaresCount; j++)
 		{
-			// Проверка ортогональности i-го и j-го квадрата
+			// РџСЂРѕРІРµСЂРєР° РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅРѕСЃС‚Рё i-РіРѕ Рё j-РіРѕ РєРІР°РґСЂР°С‚Р°
 			if (Square::OrthoDegree(squareList[i], squareList[j]) == FullOrthoDegree)
 			{
 				edgesCount++;
@@ -120,7 +120,7 @@ int main()
 		}
 	}
 
-	// Завершение работы
+	// Р—Р°РІРµСЂС€РµРЅРёРµ СЂР°Р±РѕС‚С‹
 	edgesFile.close();
 	delete[] squareList;
 
@@ -129,28 +129,28 @@ int main()
 	cin.get();*/
 
 	//int squaresCount = 0;
-	Square startSquare;						// Квадрат, с которого начинается поиск
-	string infileName = "start_square.txt";	// Имя файла с начальным квадратов
-	fstream infile;							// Файл с начальным квадратом
-	string squaresSetFileName = "squares_set.txt";	// Имя файла с набором найденных квадратов
-	fstream setfile;						// Файл с набором найденных квадратов
+	Square startSquare;						// РљРІР°РґСЂР°С‚, СЃ РєРѕС‚РѕСЂРѕРіРѕ РЅР°С‡РёРЅР°РµС‚СЃСЏ РїРѕРёСЃРє
+	string infileName = "start_square.txt";	// РРјСЏ С„Р°Р№Р»Р° СЃ РЅР°С‡Р°Р»СЊРЅС‹Рј РєРІР°РґСЂР°С‚РѕРІ
+	fstream infile;							// Р¤Р°Р№Р» СЃ РЅР°С‡Р°Р»СЊРЅС‹Рј РєРІР°РґСЂР°С‚РѕРј
+	string squaresSetFileName = "squares_set.txt";	// РРјСЏ С„Р°Р№Р»Р° СЃ РЅР°Р±РѕСЂРѕРј РЅР°Р№РґРµРЅРЅС‹С… РєРІР°РґСЂР°С‚РѕРІ
+	fstream setfile;						// Р¤Р°Р№Р» СЃ РЅР°Р±РѕСЂРѕРј РЅР°Р№РґРµРЅРЅС‹С… РєРІР°РґСЂР°С‚РѕРІ
 
-	orth_mate_search finder;				// Искатель ОДЛК
+	orth_mate_search finder;				// РСЃРєР°С‚РµР»СЊ РћР”Р›Рљ
 
-	vector<vector<int>> startSquareVector;	// Квадрат, с которого начинается поиск
-	vector<vector<vector<int>>> result;		// Результат поиска
-	vector<Square> squaresSet;				// Множество найденных квадратов
-	vector<Square> iterationSet;			// Множество квадратов, найденных в рамках итерации
-	Square newSquare;						// Квадрат, добавляемый в множество
-	int isNewSquare = 0;					// Флаг нового квадрата
-	int newSquaresInIteration = 0;			// Число новых квадратов, найденных в рамках очередной итерации
+	vector<vector<int>> startSquareVector;	// РљРІР°РґСЂР°С‚, СЃ РєРѕС‚РѕСЂРѕРіРѕ РЅР°С‡РёРЅР°РµС‚СЃСЏ РїРѕРёСЃРє
+	vector<vector<vector<int>>> result;		// Р РµР·СѓР»СЊС‚Р°С‚ РїРѕРёСЃРєР°
+	vector<Square> squaresSet;				// РњРЅРѕР¶РµСЃС‚РІРѕ РЅР°Р№РґРµРЅРЅС‹С… РєРІР°РґСЂР°С‚РѕРІ
+	vector<Square> iterationSet;			// РњРЅРѕР¶РµСЃС‚РІРѕ РєРІР°РґСЂР°С‚РѕРІ, РЅР°Р№РґРµРЅРЅС‹С… РІ СЂР°РјРєР°С… РёС‚РµСЂР°С†РёРё
+	Square newSquare;						// РљРІР°РґСЂР°С‚, РґРѕР±Р°РІР»СЏРµРјС‹Р№ РІ РјРЅРѕР¶РµСЃС‚РІРѕ
+	int isNewSquare = 0;					// Р¤Р»Р°Рі РЅРѕРІРѕРіРѕ РєРІР°РґСЂР°С‚Р°
+	int newSquaresInIteration = 0;			// Р§РёСЃР»Рѕ РЅРѕРІС‹С… РєРІР°РґСЂР°С‚РѕРІ, РЅР°Р№РґРµРЅРЅС‹С… РІ СЂР°РјРєР°С… РѕС‡РµСЂРµРґРЅРѕР№ РёС‚РµСЂР°С†РёРё
 
 	const int FullOrthoDegree = Square::Rank*Square::Rank;
 	string edgesFileName = "squares_edges.txt";
 	fstream edgesFile;
 	int edgesCount = 0;
 
-	// Считывание списка ДЛК
+	// РЎС‡РёС‚С‹РІР°РЅРёРµ СЃРїРёСЃРєР° Р”Р›Рљ
 	infile.open(infileName, std::ios_base::in);
 
 	if (infile.is_open())
@@ -160,7 +160,7 @@ int main()
 
 	infile.close();
 
-	// Поиск структуры из ортогональных квадратов, начинающейся с заданного
+	// РџРѕРёСЃРє СЃС‚СЂСѓРєС‚СѓСЂС‹ РёР· РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅС‹С… РєРІР°РґСЂР°С‚РѕРІ, РЅР°С‡РёРЅР°СЋС‰РµР№СЃСЏ СЃ Р·Р°РґР°РЅРЅРѕРіРѕ
 	/*startSquareVector.resize(Square::Rank);
 
 	for (int rowId = 0; rowId < Square::Rank; rowId++)
@@ -175,11 +175,11 @@ int main()
 
 	startSquareVector << startSquare;
 
-	// Добавляем первый квадрат в множество
+	// Р”РѕР±Р°РІР»СЏРµРј РїРµСЂРІС‹Р№ РєРІР°РґСЂР°С‚ РІ РјРЅРѕР¶РµСЃС‚РІРѕ
 	squaresSet.clear();
 	squaresSet.push_back(startSquare);
 
-	// Поиск новых квадратов, ортогональных к уже известным
+	// РџРѕРёСЃРє РЅРѕРІС‹С… РєРІР°РґСЂР°С‚РѕРІ, РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅС‹С… Рє СѓР¶Рµ РёР·РІРµСЃС‚РЅС‹Рј
 	cout << "Starting to search an orthogonal squares ..." << endl;
 
 	do
@@ -187,7 +187,7 @@ int main()
 		iterationSet.clear();
 		newSquaresInIteration = 0;
 
-		// Поиск квадратов, ортогональных квадратам основного множества
+		// РџРѕРёСЃРє РєРІР°РґСЂР°С‚РѕРІ, РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅС‹С… РєРІР°РґСЂР°С‚Р°Рј РѕСЃРЅРѕРІРЅРѕРіРѕ РјРЅРѕР¶РµСЃС‚РІР°
 		for (int squareId = 0; squareId < squaresSet.size(); squareId++)
 		{
 			startSquareVector << squaresSet[squareId];
@@ -201,7 +201,7 @@ int main()
 			}
 		}
 
-		// Проверка найденных квадратов на уникальность и добавление новых квадратов в основное множество
+		// РџСЂРѕРІРµСЂРєР° РЅР°Р№РґРµРЅРЅС‹С… РєРІР°РґСЂР°С‚РѕРІ РЅР° СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ Рё РґРѕР±Р°РІР»РµРЅРёРµ РЅРѕРІС‹С… РєРІР°РґСЂР°С‚РѕРІ РІ РѕСЃРЅРѕРІРЅРѕРµ РјРЅРѕР¶РµСЃС‚РІРѕ
 		for (int i = 0; i < iterationSet.size(); i++)
 		{
 			isNewSquare = 1;
@@ -227,7 +227,7 @@ int main()
 	}
 	while (newSquaresInIteration > 0);
 
-	// Запись найденных квадратов в файл
+	// Р—Р°РїРёСЃСЊ РЅР°Р№РґРµРЅРЅС‹С… РєРІР°РґСЂР°С‚РѕРІ РІ С„Р°Р№Р»
 	cout << "Save squares set ..." << endl;
 
 	setfile.open(squaresSetFileName, std::ios_base::out);
@@ -245,17 +245,17 @@ int main()
 
 	cout << "Start to count graph edges..." << endl;
 
-	// Открытие файла для записи рёбер графа
+	// РћС‚РєСЂС‹С‚РёРµ С„Р°Р№Р»Р° РґР»СЏ Р·Р°РїРёСЃРё СЂС‘Р±РµСЂ РіСЂР°С„Р°
 	edgesFile.open(edgesFileName, std::ios_base::out);
 	edgesFile << "IdA;IdB" << endl;
 
-	// Проверка ортогональности ДЛК
+	// РџСЂРѕРІРµСЂРєР° РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅРѕСЃС‚Рё Р”Р›Рљ
 	for (int i = 0; i < squaresSet.size(); i++)
 	{
-		// Поиск квадратов ортогональных i-му квадрату
+		// РџРѕРёСЃРє РєРІР°РґСЂР°С‚РѕРІ РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅС‹С… i-РјСѓ РєРІР°РґСЂР°С‚Сѓ
 		for (int j = i + 1; j < squaresSet.size(); j++)
 		{
-			// Проверка ортогональности i-го и j-го квадрата
+			// РџСЂРѕРІРµСЂРєР° РѕСЂС‚РѕРіРѕРЅР°Р»СЊРЅРѕСЃС‚Рё i-РіРѕ Рё j-РіРѕ РєРІР°РґСЂР°С‚Р°
 			if (Square::OrthoDegree(squaresSet[i], squaresSet[j]) == FullOrthoDegree)
 			{
 				edgesCount++;
@@ -269,7 +269,7 @@ int main()
 		}
 	}
 
-	// Завершение работы
+	// Р—Р°РІРµСЂС€РµРЅРёРµ СЂР°Р±РѕС‚С‹
 	edgesFile.close();
 
 	cout << "Total edges count: " << edgesCount << endl;

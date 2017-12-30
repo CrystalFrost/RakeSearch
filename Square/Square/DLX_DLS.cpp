@@ -1,4 +1,4 @@
-#include "DLX_DLS.h"
+﻿#include "DLX_DLS.h"
 
 void orth_mate_search::generate_permutations(int n, vector<vector<int>> &perm, bool diag)
 {

@@ -1,4 +1,4 @@
-#ifndef DLX_DLS_h
+﻿#ifndef DLX_DLS_h
 #define DLX_DLS_h
 
 #include <vector>

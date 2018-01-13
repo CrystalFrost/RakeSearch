@@ -27,6 +27,7 @@ int main(int argsCount, char* argsValues[])
 	vector<vector<vector<int>>> result;		// Результат поиска
 	vector<Square> squaresSet;				// Множество найденных квадратов
 	vector<Square> iterationSet;			// Множество квадратов, найденных в рамках итерации
+	vector<Square> currentSet;				// Множество квадратов, обрабатываемых в рамках текущей итерации
 	Square newSquare;						// Квадрат, добавляемый в множество
 	int isNewSquare = 0;					// Флаг нового квадрата
 	int newSquaresInIteration = 0;			// Число новых квадратов, найденных в рамках очередной итерации
@@ -98,13 +99,14 @@ int main(int argsCount, char* argsValues[])
 	startFile.close();
 
 	// Поиск структуры из ортогональных квадратов, начинающейся с заданного
-	/*startSquareVector << startSquare;*/
 
 		// Добавляем первый квадрат в множество
 		squaresSet.clear();
 		squaresSet.push_back(startSquare);
+		currentSet.clear();
+		currentSet.push_back(startSquare);
 
-		// Поиск новых квадратов, ортогональных к уже известным
+		// Поиск новых квадратов, ортогональных к известному и ортогональных ему и т.д.
 		cout << "Starting to search an orthogonal squares ..." << endl;
 
 		do
@@ -112,10 +114,10 @@ int main(int argsCount, char* argsValues[])
 			iterationSet.clear();
 			newSquaresInIteration = 0;
 
-			// Поиск квадратов, ортогональных квадратам основного множества
-			for (int squareId = 0; squareId < squaresSet.size(); squareId++)
+			// Поиск квадратов, ортогональных квадратам, обнаруженным ранее множества
+			for (int squareId = 0; squareId < currentSet.size(); squareId++)
 			{
-				startSquareVector << squaresSet[squareId];
+				startSquareVector << currentSet[squareId];
 				result.clear();
 				finder.check_dlx_rc1(startSquareVector, result);
 	
@@ -126,7 +128,10 @@ int main(int argsCount, char* argsValues[])
 				}
 			}
 
-			// Проверка найденных квадратов на уникальность и добавление новых квадратов в основное множество
+			// Очистка рабочего множества
+			currentSet.clear();
+
+			// Проверка найденных квадратов на уникальность и добавление новых квадратов в основное и рабочее множество
 			for (int i = 0; i < iterationSet.size(); i++)
 			{
 				isNewSquare = 1;
@@ -142,8 +147,8 @@ int main(int argsCount, char* argsValues[])
 				if (isNewSquare)
 				{
 					squaresSet.push_back(iterationSet[i]);
+					currentSet.push_back(iterationSet[i]);
 					newSquaresInIteration++;
-					cout << iterationSet[i] << endl;
 				}
 			}
 

@@ -41,8 +41,8 @@ int main(int argsCount, char* argsValues[])
 	string setFileParamName = "--set";			// Название параметра "Файл с набором найденных квадратов"
 	string edgesFileParamName = "--edges";		// Название параметра "Файл с рёбрами графа"
 	string totalsFileParamName = "--totals";	// Название параметра "Файл с характеристиками графа"
-	string delimiter = "=";						// Delimiter for split parameter name and value in argument
-	size_t delimiterPosition = -1;              // Reset the value of deimeter position
+	string delimiter = "=";						// Разделитель имени параметра и его значения в аргументе программы
+	size_t delimiterPosition = -1;              // Позиция разделителя имени параметра и его значения в аргументе
 
 	// Чтение входных параметров
 	if (argsCount > 0)
@@ -87,6 +87,7 @@ int main(int argsCount, char* argsValues[])
 	cout << "Start square file name: " << startFileName << endl;
 	cout << "Squares set file name: " << setFileName << endl;
 	cout << "Graph edges file name: " << edgesFileName << endl;
+	cout << "Totals file name: " << totalsFileName << endl;
 
 	// Считывание списка ДЛК
 	startFile.open(startFileName, std::ios_base::in);

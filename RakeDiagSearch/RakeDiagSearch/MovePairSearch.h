@@ -24,7 +24,7 @@ public:
 
 private:                              
   static const int CheckpointInterval = 1000000;  // Интервал создания контрольных точек
-  static const int OrhoSquaresCacheSize = 32;     // Размер кэша для хранения квадратов, ортогональных обрабатываемому
+  static const int OrhoSquaresCacheSize = 128;    // Размер кэша для хранения квадратов, ортогональных обрабатываемому
 
   void MoveRows();                  // Перетасовка строк заданного ДЛК в поиске ОДЛК к нему
   void ProcessOrthoSquare();        // Обработка найденного ортогонального квадрата

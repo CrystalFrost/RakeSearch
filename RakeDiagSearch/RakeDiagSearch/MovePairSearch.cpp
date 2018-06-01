@@ -267,7 +267,8 @@ void MovePairSearch::OnSquareGenerated(Square newSquare)
 
     // Проверка, может ли клиент BOINC создать контрольную точку,
     // и если может, то запустить функцию её записи
-    if (boinc_time_to_checkpoint()) {
+    if (boinc_time_to_checkpoint())
+    {
       CreateCheckpoint();
       boinc_checkpoint_completed(); // BOINC знает, что контрольная точка записана
     }  
@@ -284,6 +285,129 @@ void MovePairSearch::OnSquareGenerated(Square newSquare)
   }
 }
 
+
+// Перетасовка строк заданного ДЛК в поиске ОДЛК к нему
+void MovePairSearch::MoveRows()
+{
+  int currentRowId = 1;              // Номер обрабатываемой строки в формируемом квадрате
+  int isRowGet = 0;                  // Флаг нахождения строки для проверки в рамках комбинации
+  int gettingRowId = -1;             // Номер строки из исходного квадрата, подставляемой в обрабатываемую строку формируемого квадрата
+  int oldRowId = -1;                 // Номер предыдущего вариант исходной строки строки формируемого квадрата, затираемой новым вариантом
+
+  int primeDiagonalValues[Rank];     // Флаги свободных значений на основной диагонали 
+  int secondaryDiagonalValues[Rank]; // Флаги свободных значений на побочной диагонали 
+  int duplicationDetected = 0;       // Флаг нахождения повторяющихся значений
+
+  // Перебор различных комбинаций строк заданного ДЛК с целью поиска ОДЛК к нему
+    // Выставление флагов возможности использования значений на диагоналях
+    for (int i = 0; i < Rank; i++)
+    {
+      primeDiagonalValues[i] = 1;
+      secondaryDiagonalValues[i] = 1;
+    }
+
+    // Выставляем флаги задействования первой (фиксированной) строки и её значений на диагоналях
+    rowsUsage[0] = 0;
+    rowsHistory[0][0] = 0;
+	currentSquareRows[0] = 0;
+    primeDiagonalValues[squareA[0][0]] = 0;
+    secondaryDiagonalValues[squareA[0][Rank - 1]] = 0;
+
+    // Подбор всех возможных комбинаций из строк исходного квадрата
+    while (currentRowId > 0)
+    {
+      // Очередной шаг в построении новой комбинации
+        // Подбор строки из исходного квадрата на позицию currentRowId формирумого квадрата
+        isRowGet = 0;
+        gettingRowId = -1;
+        
+        for (int i = 0; i < Rank; i++)
+        {
+          // Проверка i-й строки исходного квадрата
+          if (rowsUsage[i] && rowsHistory[currentRowId][i] && primeDiagonalValues[squareA[i][currentRowId]] && secondaryDiagonalValues[squareA[i][Rank - currentRowId - 1]])
+          {
+            isRowGet = 1;
+            gettingRowId = i;
+
+            break;
+          }
+        }
+
+        // Обработка найденной строки 
+        if (isRowGet)
+        {
+          // Добавление найденной строки в комбинацию строк формируемого квадрата
+            // Считывание номера строки, уже присутствующей на этой позиции
+            oldRowId = currentSquareRows[currentRowId];
+
+            // Отмечание использования новой строки в массивах флагов
+              // Сброс флага в массиве свободных/использованных строк
+              rowsUsage[gettingRowId] = 0;
+              // Сброс флага в массиве истории использования строк
+              rowsHistory[currentRowId][gettingRowId] = 0;
+              // Запись номера найденной строки в перечень строк новой комбинации
+              currentSquareRows[currentRowId] = gettingRowId;
+              // Отмечание диагональных значений из новой строки как использованных
+              primeDiagonalValues[squareA[gettingRowId][currentRowId]] = 0;
+              secondaryDiagonalValues[squareA[gettingRowId][Rank - currentRowId - 1]] = 0;
+
+            // Убирание флага занятости строки, убираемой из новой комбинации и значений её диагональных клеток
+            if (oldRowId != -1)
+            {
+              rowsUsage[oldRowId] = 1;
+              primeDiagonalValues[squareA[oldRowId][currentRowId]] = 1;
+              secondaryDiagonalValues[squareA[oldRowId][Rank - currentRowId - 1]] = 1;
+            }
+
+            // Обработка полученной комбинации
+            if (currentRowId == Rank - 1)
+            {
+              // Обработка завершённой комбинации
+                // Формирование квадрата по найденной комбинации
+                for (int i = 0; i < Rank; i++)
+                {
+                  for (int j = 0; j < Rank; j++)
+                  {
+                    squareB[i][j] = squareA[currentSquareRows[i]][j];
+                  }
+                }
+
+                // Обработка полученного квадрата
+                ProcessOrthoSquare();
+            }
+            else
+            {
+              // Шаг вперёд - к следующей строк формируемого квадрата
+              currentRowId++; 
+            }
+        }
+        else
+        {
+          // Шаг назад в поиске
+            // Считывание номера строки исходного квадрата высвобождаемой, при уходе из текущей строки создаваемой комбинации
+            oldRowId = currentSquareRows[currentRowId];
+            // Отмечание текущей строки новой комбинации как незадействованной
+            currentSquareRows[currentRowId] = -1;
+            // Убирание флагов задействования строки из исходного квадрата и задействования её диагональных значений в новой комбинации
+			if (oldRowId != -1)
+			{
+              rowsUsage[oldRowId] = 1;
+              primeDiagonalValues[squareA[oldRowId][currentRowId]] = 1;
+			  secondaryDiagonalValues[squareA[oldRowId][Rank - currentRowId - 1]] = 1;
+			}
+            // Очистка истории оставлямой строки комбинации
+            for (int i = 0; i < Rank; i++)
+            {
+              rowsHistory[currentRowId][i] = 1;
+            }
+            // Переход к предыдущей строке создаваемой комбинации
+            currentRowId--;
+        }
+    }
+}
+
+
+/* Предыдущий вариант - где строка копировалась сразу
 // Перетасовка строк заданного ДЛК в поиске ОДЛК к нему
 void MovePairSearch::MoveRows()
 {
@@ -331,13 +455,13 @@ void MovePairSearch::MoveRows()
           // Считываем номер строки, которая сейчас стоит в квадрате
           oldRowId = currentSquareRows[currentRowId];
           // Записываем новую строку в квадрат, массив флагов использованных строк, 
-          //в историю использованных строк и массив текущих строк квадрата
+          // в историю использованных строк и массив текущих строк квадрата
             // Записываем новую строку в квадрат
             for (int j = 0; j < Rank; j++)
             {
               squareB[currentRowId][j] = squareA[gettingRowId][j];
             }
-            // Отмечаем строку в массие используемых строк
+            // Отмечаем строку в массиве используемых строк
             rowsUsage[gettingRowId] = 0;
             // Отмечаем строку в истории использования строки
             rowsHistory[currentRowId][gettingRowId] = 0;
@@ -352,7 +476,7 @@ void MovePairSearch::MoveRows()
           }
 
         // Проверяем диагональность получающейся части квадрата
-          // Сбрасываем флаг сигнализирующий и дубликатах на диагоналях
+          // Сбрасываем флаг сигнализирующий о дубликатах на диагоналях
           duplicationDetected = 0;
           // Проверка главной диагонали
             // Сбрасываем флаги использованных значений
@@ -440,7 +564,7 @@ void MovePairSearch::MoveRows()
         currentRowId--;
     }
   }
-}
+}*/
 
 
 // Обработка найденного ортогонального квадрата
@@ -468,7 +592,7 @@ void MovePairSearch::ProcessOrthoSquare()
 
   // Обработка найденного квадрата
   if (isDifferent && Square::OrthoDegree(a, b) == orthoMetric 
-      && b.IsDiagonal() && b.IsLatin() && a.IsDiagonal() && b.IsLatin())
+      && b.IsDiagonal() && b.IsLatin() && a.IsDiagonal() && a.IsLatin())
   {
     // Запись информации о найденном квадрате
       // Увеличение счётчика квадратов

@@ -2,7 +2,9 @@ BOINC_DIR = /home/hoarfrost/Projects/BOINC
 BOINC_API_DIR = $(BOINC_DIR)/api
 BOINC_LIB_DIR = $(BOINC_DIR)/lib
 
-CXXFLAGS += -O2 -static \
+COMPILER = g++
+
+CXXFLAGS += -O3 -ftree-vectorize -static -std=c++11 \
     -I$(BOINC_DIR) \
     -I$(BOINC_LIB_DIR) \
     -I$(BOINC_API_DIR) \
@@ -17,16 +19,16 @@ clean:
 	rm -f $(PROGRAM) *.o
 
 $(PROGRAM): main.o Square.o Generator.o MovePairSearch.o $(BOINC_LIB_DIR)/libboinc.a $(BOINC_API_DIR)/libboinc_api.a
-	g++ $(CXXFLAGS) -o $(PROGRAM) main.o Square.o Generator.o MovePairSearch.o -pthread -lboinc_api -lboinc
+	$(COMPILER) $(CXXFLAGS) -o $(PROGRAM) main.o Square.o Generator.o MovePairSearch.o -pthread -lboinc_api -lboinc
 
 Square.o: Square.cpp
-	g++ $(CXXFLAGS) -c Square.cpp
+	$(COMPILER) $(CXXFLAGS) -c Square.cpp
 
 Generator.o: Generator.cpp
-	g++ $(CXXFLAGS) -c Generator.cpp
+	$(COMPILER) $(CXXFLAGS) -c Generator.cpp
 	
 MovePairSearch.o: MovePairSearch.cpp
-	g++ $(CXXFLAGS) -c MovePairSearch.cpp 
+	$(COMPILER) $(CXXFLAGS) -c MovePairSearch.cpp 
 
 main.o: main.cpp
-	g++ $(CXXFLAGS) -c main.cpp
+	$(COMPILER) $(CXXFLAGS) -c main.cpp

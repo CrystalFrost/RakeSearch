@@ -1,4 +1,4 @@
-CXXFLAGS += -O2 -static -std=c++11
+CXXFLAGS += -O3 -static -std=c++11
 
 PROGRAM = Square
 

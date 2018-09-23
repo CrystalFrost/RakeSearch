@@ -165,9 +165,9 @@ int main(int argsCount, char* argsValues[])
 			currentSet.clear();
 
 			// Проверка найденных квадратов на нахождение в проверочном списке
-			for (int i = 0; i < iterationSet.size(); i++)
+			for (int i = 0; i < iterationSet.size() && !isTheGraph; i++)
 			{
-				for (int j = 0; j < checkListSize; j++)
+				for (int j = 0; j < checkListSize && !isTheGraph; j++)
 				{
 					if (iterationSet[i] == checkList[j])
 					{

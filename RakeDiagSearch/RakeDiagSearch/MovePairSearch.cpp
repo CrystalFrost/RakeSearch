@@ -19,12 +19,13 @@ void MovePairSearch::Reset()
 		// Сброс числа найденых пар для заданного ДЛК
 		pairsCount = 0;
 
-	// Сброс значений глобальных счётчиков
-	totalPairsCount = 0;
-	totalSquaresWithPairs = 0;
-	totalProcessedSquaresSmall = 0;
-	totalProcessedSquaresLarge = 0;
+		// Сброс значений глобальных счётчиков
+		totalPairsCount = 0;
+		totalSquaresWithPairs = 0;
+		totalProcessedSquaresSmall = 0;
+		totalProcessedSquaresLarge = 0;
 
+	// Задание имён входных файлов
 	startParametersFileName = "start_parameters.txt";
 	resultFileName = "result.txt";
 	checkpointFileName = "checkpoint.txt";
@@ -40,8 +41,7 @@ void MovePairSearch::Reset()
 
 
 // Инициализация поиска
-void MovePairSearch::InitializeMoveSearch(string start, string result, 
-																			 string checkpoint, string temp)
+void MovePairSearch::InitializeMoveSearch(string start, string result, string checkpoint, string temp)
 {
 	fstream startFile;
 	fstream checkpointFile;
@@ -58,26 +58,26 @@ void MovePairSearch::InitializeMoveSearch(string start, string result,
 		checkpointFile.open(checkpointFileName.c_str(), std::ios_base::in);
 
 		// Считываение состояния
-	if (checkpointFile.is_open())
-	{
-		// Считывание состояния из файла контрольной точки
-		try
+		if (checkpointFile.is_open())
 		{
-			Read(checkpointFile);
-			isStartFromCheckpoint = 1;
-		}
-		catch (...)
-		{
-			cerr << "Error opening checkpoint file! Starting with workunit start parameters." << endl;
-			isStartFromCheckpoint = 0;
-		}
+			// Считывание состояния из файла контрольной точки
+			try
+			{
+				Read(checkpointFile);
+				isStartFromCheckpoint = 1;
+			}
+			catch (...)
+			{
+				cerr << "Error opening checkpoint file! Starting with workunit start parameters." << endl;
+				isStartFromCheckpoint = 0;
+			}
 		}
 
-	if (isStartFromCheckpoint != 1)
+		if (isStartFromCheckpoint != 1)
 		{
-		// Считывание состояния из файла стартовых параметров
-		Read(startFile);
-		isStartFromCheckpoint = 0;
+			// Считывание состояния из файла стартовых параметров
+			Read(startFile);
+			isStartFromCheckpoint = 0;
 		}
 
 		// Закрытие файлов
@@ -97,13 +97,13 @@ void MovePairSearch::Read(istream& is)
 	// Считывание состояния поиска
 		// Находим маркер начала состояния
 		do
-	{
-		std::getline(is, marker);
-
-		if (is.eof())
 		{
-			throw ("Expected start marker, but EOF found.");
-		}
+			std::getline(is, marker);
+
+			if (is.eof())
+			{
+				throw ("Expected start marker, but EOF found.");
+			}
 		}
 		while (marker != moveSearchGlobalHeader);
 		
@@ -111,15 +111,15 @@ void MovePairSearch::Read(istream& is)
 		is >> squareAGenerator;
 
 		// Находим маркер компоненты перетасовки
-	do
-	{
-		std::getline(is, marker);
-
-		if (is.eof())
+		do
 		{
-			throw ("Expected start marker, but EOF found.");
+			std::getline(is, marker);
+
+			if (is.eof())
+			{
+				throw ("Expected start marker, but EOF found.");
+			}
 		}
-	}
 		while (marker != moveSearchComponentHeader);
 
 		// Считываем переменные поиска перетасовкой (по факту - переменные со статистикой)
@@ -171,7 +171,9 @@ void MovePairSearch::CreateCheckpoint()
 		rename(tempCheckpointFileName.c_str(), checkpointFileName.c_str());
 	}
 	else
+	{
 		cerr << "Error opening checkpoint file!" << endl;
+	}
 }
 
 
@@ -301,11 +303,11 @@ void MovePairSearch::MoveRows()
 		}
 
 		// Выставляем флаги задействования первой (фиксированной) строки и её значений на диагоналях
-		rowsUsageFlags &= ~1u;
-		rowsHistoryFlags[0] &= ~1u;
+		rowsUsageFlags ^= 1u;
+		rowsHistoryFlags[0] ^= 1u;
 		currentSquareRows[0] = 0;
-		primaryDiagonalFlags &= ~(1u << squareA[0][0]);
-		secondaryDiagonalFlags &= ~(1u << squareA[0][Rank - 1]);
+		primaryDiagonalFlags ^= 1u << squareA[0][0];
+		secondaryDiagonalFlags ^= 1u << squareA[0][Rank - 1];
 
 		// Подбор всех возможных комбинаций из строк исходного квадрата
 		while (currentRowId > 0)
@@ -349,7 +351,7 @@ void MovePairSearch::MoveRows()
 							}
 
 							// Отмечание строки с номером bitIndex как уже проверенной
-							testedRowsMask &= ~(1u << bitIndex);
+							testedRowsMask ^= 1u << bitIndex;
 						}
 				}
 				while (isRowFree && !isRowGet);
@@ -363,21 +365,21 @@ void MovePairSearch::MoveRows()
 
 						// Отмечание использования новой строки в массивах флагов
 							// Сброс флага в массиве свободных/использованных строк
-							rowsUsageFlags &= ~(1u << gettingRowId);
+							rowsUsageFlags ^= 1u << gettingRowId;
 							// Сброс флага в массиве истории использования строк
-							rowsHistoryFlags[currentRowId] &= ~(1u << gettingRowId);
+							rowsHistoryFlags[currentRowId] ^= 1u << gettingRowId;
 							// Запись номера найденной строки в перечень строк новой комбинации
 							currentSquareRows[currentRowId] = gettingRowId;
 							// Отмечание диагональных значений из новой строки как использованных
-							primaryDiagonalFlags &= ~(1u << squareA[gettingRowId][currentRowId]);
-							secondaryDiagonalFlags &= ~(1u << squareA[gettingRowId][Rank - currentRowId - 1]);
+							primaryDiagonalFlags ^= 1u << squareA[gettingRowId][currentRowId];
+							secondaryDiagonalFlags ^= 1u << squareA[gettingRowId][Rank - currentRowId - 1];
 
 						// Убирание флага занятости строки, убираемой из новой комбинации и значений её диагональных клеток
 						if (oldRowId != -1)
 						{
-							rowsUsageFlags |= (1u << oldRowId);
-							primaryDiagonalFlags |= (1u << squareA[oldRowId][currentRowId]);
-							secondaryDiagonalFlags |= (1u << squareA[oldRowId][Rank - currentRowId - 1]);
+							rowsUsageFlags |= 1u << oldRowId;
+							primaryDiagonalFlags |= 1u << squareA[oldRowId][currentRowId];
+							secondaryDiagonalFlags |= 1u << squareA[oldRowId][Rank - currentRowId - 1];
 						}
 
 						// Обработка полученной комбинации
@@ -428,9 +430,9 @@ void MovePairSearch::MoveRows()
 						// Убирание флагов задействования строки из исходного квадрата и задействования её диагональных значений в новой комбинации
 						if (oldRowId != -1)
 						{
-							rowsUsageFlags |= (1u << oldRowId);
-							primaryDiagonalFlags |= (1u << squareA[oldRowId][currentRowId]);
-							secondaryDiagonalFlags |= (1u << squareA[oldRowId][Rank - currentRowId - 1]);
+							rowsUsageFlags |= 1u << oldRowId;
+							primaryDiagonalFlags |= 1u << squareA[oldRowId][currentRowId];
+							secondaryDiagonalFlags |= 1u << squareA[oldRowId][Rank - currentRowId - 1];
 						}
 						// Очистка истории оставлямой строки комбинации
 						rowsHistoryFlags[currentRowId] = (1u << Rank) - 1;

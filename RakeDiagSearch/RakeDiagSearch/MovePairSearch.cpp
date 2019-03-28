@@ -216,7 +216,14 @@ void MovePairSearch::OnSquareGenerated(Square& newSquare)
 	}
 
 	// Собирание статистики по обработанным квадратам
-	totalProcessedSquaresSmall++;
+		// Увеличение счётчика квадратов
+		totalProcessedSquaresSmall++;
+		// Увеличение счётчика миллиардов квадратов
+		if (totalProcessedSquaresSmall == 1000000000)
+		{
+			totalProcessedSquaresLarge++;
+			totalProcessedSquaresSmall = 0;
+		}
 
 	// Фиксация информации о ходе обработки
 	if (totalProcessedSquaresSmall % CheckpointInterval == 0)

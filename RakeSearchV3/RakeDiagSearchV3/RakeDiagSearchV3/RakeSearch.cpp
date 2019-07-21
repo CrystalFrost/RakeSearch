@@ -439,13 +439,10 @@ void RakeSearch::ProcessOrthoSquare()
 	Square a(squareA);				// Квадрат A как объект
 	Square b(squareB);				// Квадрат B как объект
 
-	/*int orthoMetric = Rank * Rank;	// Значение метрики ортогональности, говорящее о том, что квадраты - полностью ортогональны*/
-	/*int orthoMetric = 80;*/
-	int orthoDegree = -1;
+	int orthoDegree = -1;			// Метрика ортогональности проверяемых квадратов
 
 	// Обработка найденного квадрата
 	orthoDegree = Square::OrthoDegree(a, b);
-	/*if (Square::OrthoDegree(a, b) == orthoMetric && b.IsDiagonal() && b.IsLatin() && a.IsDiagonal() && a.IsLatin())*/
 	if (orthoDegree >= MinOrthoMetric && b.IsDiagonal() && b.IsLatin() && a.IsDiagonal() && a.IsLatin())
 	{
 		// Запись информации о найденном квадрате

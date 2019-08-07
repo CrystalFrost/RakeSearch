@@ -825,12 +825,20 @@ void RakeSearch::Start()
 void RakeSearch::PermuteRows()
 {
 	// Инициализация переменных заменила блок кода, приведённый под ней
-	int currentSquareRows[Rank] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };		// Массив с перечнем текущих строк, использованных в квадрате. На i-й позиции - номер используемой строки
+	const unsigned int rowsHistoryMasks[Rank] = { 1022, 1021, 1019, 1015, 1007, 991, 959, 895, 767, 511};
+	int currentSquareRows[Rank] = { 0, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+	unsigned int primaryDiagonalFlags = 1022;
+	unsigned int secondaryDiagonalFlags = 511;
+	unsigned int rowsUsageFlags = 1022;
+	unsigned int rowsHistoryFlags[Rank] = { 1022, 1021, 1019, 1015, 1007, 991, 959, 895, 767, 511};
+	int currentRowId = 1;
+
+	/*int currentSquareRows[Rank] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };		// Массив с перечнем текущих строк, использованных в квадрате. На i-й позиции - номер используемой строки
 	unsigned int primaryDiagonalFlags = 0;								// Битовые флаги свободных значений на основной диагонали 
 	unsigned int secondaryDiagonalFlags = 0;							// Битовые флаги свободных значений на побочной диагонали 
 	unsigned int rowsUsageFlags = 0;									// Битовые флаги задействования строк в текущей комбинации
 	unsigned int rowsHistoryFlags[Rank] = { 1022, 1021, 1019, 1015, 1007, 991, 959, 895, 767, 511};	// Битовые флаги истории задействования строк в рамках текущей комбинации, где i-е значение - это маска использования строк вместо i-й строки квадрата B
-	int currentRowId = Rank - 1;		// Номер обрабатываемой строки в формируемом квадрате
+	int currentRowId = Rank - 1;		// Номер обрабатываемой строки в формируемом квадрате*/
 
 	int isRowGet = 0;					// Флаг нахождения строки для проверки в рамках комбинации
 	int oldRowId = -1;					// Номер предыдущего вариант исходной строки строки формируемого квадрата, затираемой новым вариантом
@@ -980,7 +988,8 @@ void RakeSearch::PermuteRows()
 							secondaryDiagonalFlags |= 1u << squareA[oldRowId][Rank - currentRowId - 1];
 						}
 						// Очистка истории оставлямой строки комбинации
-						rowsHistoryFlags[currentRowId] = (1u << Rank) - 1;
+						/*rowsHistoryFlags[currentRowId] = (1u << Rank) - 1;*/
+						rowsHistoryFlags[currentRowId] = rowsHistoryMasks[currentRowId];
 						// Переход к предыдущей строке создаваемой комбинации
 						currentRowId--;
 				}

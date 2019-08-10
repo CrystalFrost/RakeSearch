@@ -494,6 +494,9 @@ void RakeSearch::ProcessOrthoSquare()
 				{
 					std::cerr << "Error opening file!";
 				}
+				// Создание контрольной точки
+				CreateCheckpoint();
+				boinc_checkpoint_completed();
 			}
 
 			// Вывод информации о найденной паре

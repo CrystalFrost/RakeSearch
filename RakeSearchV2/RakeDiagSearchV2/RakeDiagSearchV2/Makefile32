@@ -5,6 +5,7 @@ BOINC_LIB_DIR = $(BOINC_DIR)/lib
 COMPILER = g++
 
 CXXFLAGS += -O3 -ftree-vectorize -static -std=c++11 \
+    -m32
     -I$(BOINC_DIR) \
     -I$(BOINC_LIB_DIR) \
     -I$(BOINC_API_DIR) \

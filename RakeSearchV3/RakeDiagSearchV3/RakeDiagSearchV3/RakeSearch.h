@@ -5,7 +5,9 @@
 # include <iostream>
 # include <fstream>
 # include <string>
+# ifndef __arm__
 # include <immintrin.h>
+# endif
 
 # include "boinc_api.h"
 # include "Square.h"

@@ -652,6 +652,9 @@ void RakeSearch::ShowSearchTotals()
 // Запуск генерации квадратов
 void RakeSearch::Start()
 {
+	# ifdef __arm__
+	unsigned int reversedMask;   // Инвертированная битовая маска с флагами (для ARM!)
+	# endif
 	unsigned long bitIndex;      // Позиция выставленного бита в "массиве" флагов
 	unsigned int freeValuesMask; // Итоговая маска из битов - флагов занятости значений
 	unsigned int isGet;          // Флаг получения нового значения для клетки
@@ -694,6 +697,19 @@ void RakeSearch::Start()
 						freeValuesMask &= flagsColumns[columnId] & flagsRows[rowId] & flagsCellsHistory[rowId][columnId];
 
 						// Определяем минимально возможное для использования в клетке значение
+						# ifdef __arm__
+						asm ("rbit %1, %0" : "=r" (reversedMask) : "r" (freeValuesMask) : );
+						asm ("clz %1, %0" : "=r" (bitIndex) : "r" (reversedMask) : );
+						if (bitIndex < Rank)
+						{
+						    cellValue = bitIndex;
+						    isGet = 1;
+						}
+						else
+						{
+						    isGet = 0;
+						}
+						# else
 						# ifdef _MSC_VER
 						isGet = _BitScanForward(&bitIndex, freeValuesMask);
 						cellValue = bitIndex;
@@ -708,6 +724,7 @@ void RakeSearch::Start()
 						{
 							isGet = 0;
 						}
+						# endif
 						# endif
 
 					// Обработка результата поиска
@@ -842,6 +859,9 @@ void RakeSearch::PermuteRows()
 	unsigned long insertedRowId = 0;	// Номер новой строки для проверки совместимости с комбинацией
 	unsigned int isRowFree = 0;			// Флаг наличия "свободной" для проверки в комбинации строки, которую потом можно проверять на диагональность
 	unsigned int freeRowsMask = 0;		// Маска из соединения флагов задействования строк и истории задействования строк исходного квадрата для текущей строки новой комбинации
+	# ifdef __arm__
+	unsigned int reversedMask;		// Инвертированная битовая маска с флагами (для ARM!)
+	# endif
 
 
 	// Важная деталь! В состав битовых флагов истории зайдействования строк, уже включен фильтр, отсеивающий комбинацию, приводящую к исходному квадрату
@@ -893,6 +913,19 @@ void RakeSearch::PermuteRows()
 						// Получение маски свободных строк
 						freeRowsMask = rowsUsageFlags & rowsHistoryFlags[currentRowId];
 						// Получение номера свободной строки
+						# ifdef __arm__
+						asm ("rbit %1, %0" : "=r" (reversedMask) : "r" (freeRowsMask) : );
+						asm ("clz %1, %0" : "=r" (insertedRowId) : "r" (reversedMask) : );
+
+						if (insertedRowId < Rank)
+						{
+						    isRowFree = 1;
+						}
+						else
+						{
+						    isRowFree = 0;
+						}
+						# else
 						# ifdef _MSC_VER
 						isRowFree = _BitScanForward(&insertedRowId, freeRowsMask);
 						# else
@@ -906,6 +939,7 @@ void RakeSearch::PermuteRows()
 						{
 							isRowFree = 0;
 						}
+						# endif
 						# endif
 
 						// Обработка найденной строки

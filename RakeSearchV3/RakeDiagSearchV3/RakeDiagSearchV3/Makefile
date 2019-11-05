@@ -1,10 +1,10 @@
-BOINC_DIR = /home/hoarfrost/Projects/BOINC
+BOINC_DIR = /home/pi/pi_projects/BOINC/boinc
 BOINC_API_DIR = $(BOINC_DIR)/api
 BOINC_LIB_DIR = $(BOINC_DIR)/lib
 
 COMPILER = g++
 
-CXXFLAGS += -O3 -ftree-vectorize -static -std=c++11 \
+CXXFLAGS += -O3 -mcpu=cortex-a53 -mtune=cortex-a53 -static -std=c++11 \
     -I$(BOINC_DIR) \
     -I$(BOINC_LIB_DIR) \
     -I$(BOINC_API_DIR) \

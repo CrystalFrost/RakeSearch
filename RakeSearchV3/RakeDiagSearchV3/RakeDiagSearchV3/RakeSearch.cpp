@@ -653,7 +653,7 @@ void RakeSearch::ShowSearchTotals()
 void RakeSearch::Start()
 {
 	# ifdef __arm__
-	unsigned int reversedMask;   // Инвертированная битовая маска с флагами (для ARM!)
+	unsigned int reversedMask;   // Перевёрнутая битовая маска с флагами (для ARM, команды clz!)
 	# endif
 	unsigned long bitIndex;      // Позиция выставленного бита в "массиве" флагов
 	unsigned int freeValuesMask; // Итоговая маска из битов - флагов занятости значений
@@ -860,7 +860,7 @@ void RakeSearch::PermuteRows()
 	unsigned int isRowFree = 0;			// Флаг наличия "свободной" для проверки в комбинации строки, которую потом можно проверять на диагональность
 	unsigned int freeRowsMask = 0;		// Маска из соединения флагов задействования строк и истории задействования строк исходного квадрата для текущей строки новой комбинации
 	# ifdef __arm__
-	unsigned int reversedMask;		// Инвертированная битовая маска с флагами (для ARM!)
+	unsigned int reversedMask;		// Перевёрнутая битовая маска с флагами (для ARM, команды clz!)
 	# endif
 
 

@@ -30,7 +30,7 @@ int Compute(string wu_filename, string result_filename)
     string initCheckpointFileName;
     string initTmpCheckpointFileName;
 
-	RakeSearch search;
+    RakeSearch search;
 
     // Проверка наличия файла задания, контрольной точки, результата
     localWorkunit = wu_filename; 
@@ -47,13 +47,13 @@ int Compute(string wu_filename, string result_filename)
             // Запускаем расчёт
             initStartFileName = localWorkunit;
             initResultFileName = localResult;
-            initCheckpointFileName = localCheckpoint;             
+            initCheckpointFileName = localCheckpoint;
             initTmpCheckpointFileName = localTmpCheckpoint;
- 
+
             if(isDebug) cout << "Start from checkpoint of workunit " << localWorkunit << endl;
 
-			search.Initialize(initStartFileName, initResultFileName, initCheckpointFileName, initTmpCheckpointFileName);
-			search.Start();
+            search.Initialize(initStartFileName, initResultFileName, initCheckpointFileName, initTmpCheckpointFileName);
+            search.Start();
         }
         else
         {

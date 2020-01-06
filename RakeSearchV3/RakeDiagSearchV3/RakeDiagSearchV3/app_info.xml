@@ -1,18 +1,18 @@
-<app_info>	
-  <app>
-    <name>rakesearch</name>	
-  </app>	
-  <file_info>
-    <name>RakeDiagSearch.exe</name>
-    <executable/>	
-  </file_info>	
-  <app_version>
-    <app_name>rakesearch</app_name>
-    <version_num>702</version_num>
-		<api_version>7.9.0</api_version>
-		<file_ref>
-			<file_name>RakeDiagSearch.exe</file_name>
-			<main_program/>
-		</file_ref>
-	</app_version>
+<app_info>
+    <app>
+        <name>rakesearch10</name>
+    </app>
+    <file_info>
+        <name>rakesearch10_3.2_x86_64-pc-linux-gnu</name>
+        <executable/>
+    </file_info>
+    <app_version>
+        <app_name>rakesearch10</app_name>
+        <version_num>301</version_num>
+        <api_version>7.9.0</api_version>
+        <file_ref>
+            <file_name>rakesearch10_3.2_x86_64-pc-linux-gnu</file_name>
+            <main_program/>
+        </file_ref>
+    </app_version>
 </app_info>

@@ -23,12 +23,12 @@ void RakeSearch::SetFileNames(string start, string result, string checkpoint, st
 void RakeSearch::Reset()
 {
 	// Очистка матриц квадратов
-	for (int rowId = 0; rowId < Rank; rowId++)
+	for (int i = 0; i < Rank; i++)
 	{
-		for (int columnId = 0; columnId < Rank; columnId++)
+		for (int j = 0; j < Rank; j++)
 		{
-			squareA[rowId][columnId] = Square::Empty;
-			squareB[rowId][columnId] = Square::Empty;
+			squareA[i][j] = Square::Empty;
+			squareB[i][j] = Square::Empty;
 		}
 	}
 
@@ -57,11 +57,11 @@ void RakeSearch::Reset()
 		}
 
 		// Сброс значений в кубе истории использования значений в клетках
-		for (int rowId = 0; rowId < Rank; rowId++)
+		for (int i = 0; i < Rank; i++)
 		{
-			for (int columnId = 0; columnId < Rank; columnId++)
+			for (int j = 0; j < Rank; j++)
 			{
-				flagsCellsHistory[rowId][columnId] = (1u << Rank) - 1;
+				flagsCellsHistory[i][j] = (1u << Rank) - 1;
 			}
 		}
 
@@ -179,11 +179,11 @@ void RakeSearch::Read(istream& is)
 			{
 				// Считывание из потока квадрата A - первого квадрата пары
 				is >> currentSquare;
-				for (int rowId = 0; rowId < Rank; rowId++)
+				for (int i = 0; i < Rank; i++)
 				{
-					for (int columnId = 0; columnId < Rank; columnId++)
+					for (int j = 0; j < Rank; j++)
 					{
-						squareA[rowId][columnId] = currentSquare.Matrix[rowId][columnId];
+						squareA[i][j] = currentSquare.Matrix[i][j];
 					}
 				}
 

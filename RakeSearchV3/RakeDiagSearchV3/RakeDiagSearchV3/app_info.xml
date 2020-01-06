@@ -3,7 +3,7 @@
         <name>rakesearch10</name>
     </app>
     <file_info>
-        <name>rakesearch10_3.2_x86_64-pc-linux-gnu</name>
+        <name>rakesearch10_3.1_x86_64-pc-linux-gnu</name>
         <executable/>
     </file_info>
     <app_version>
@@ -11,7 +11,7 @@
         <version_num>301</version_num>
         <api_version>7.9.0</api_version>
         <file_ref>
-            <file_name>rakesearch10_3.2_x86_64-pc-linux-gnu</file_name>
+            <file_name>rakesearch10_3.1_x86_64-pc-linux-gnu</file_name>
             <main_program/>
         </file_ref>
     </app_version>
